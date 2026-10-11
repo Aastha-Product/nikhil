@@ -1,11 +1,67 @@
-// Small presentational helpers shared by the pages (server components).
+// Presentational helpers shared by the pages (server components).
 
-export function TierBadge({ tier, score }) {
-  if (!tier) return <span className="tier tier-none">—</span>;
+export const TIER_TEXT = { A: "Call this week", B: "Nurture", C: "Deprioritize" };
+
+export function TierPill({ tier }) {
+  if (!tier) return <span className="tier-pill tier-none">Not scored</span>;
   return (
-    <span className={`tier tier-${tier}`} title={`Tier ${tier}`}>
-      {score ?? ""}<small>{tier}</small>
+    <span className={`tier-pill tier-${tier}`}>
+      <b>{tier}</b> {TIER_TEXT[tier]}
     </span>
+  );
+}
+
+/** Horizontal score meter: fill colored by tier, track a lighter step of the same ramp. */
+export function ScoreMeter({ score, tier }) {
+  if (score == null) return <span className="muted">—</span>;
+  return (
+    <div className="score-meter" title={`Fit score ${score}/100 · Tier ${tier}`}>
+      <span className="score-num">{score}</span>
+      <span className="meter">
+        <span className={`meter-fill fill-${tier}`} style={{ width: `${score}%` }} />
+      </span>
+    </div>
+  );
+}
+
+/** Circular score for headers and cards. */
+export function ScoreRing({ score, tier, size = 64 }) {
+  const stroke = size >= 80 ? 8 : 6;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="ring" style={{ width: size, height: size }} title={`Fit score ${score}/100 · Tier ${tier}`}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
+        <circle cx={size / 2} cy={size / 2} r={r} className="ring-track" strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          className={`ring-fill stroke-${tier}`}
+          strokeWidth={stroke}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${(c * (score ?? 0)) / 100} ${c}`}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <span className="ring-label" style={{ fontSize: size >= 80 ? 26 : 18 }}>{score ?? "—"}</span>
+    </div>
+  );
+}
+
+export function Avatar({ org, name, size = 36 }) {
+  return (
+    // GitHub serves org avatars at github.com/<org>.png; a plain img keeps it dependency-free.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className="avatar"
+      src={`https://github.com/${org}.png?size=${size * 2}`}
+      alt={`${name} logo`}
+      width={size}
+      height={size}
+      loading="lazy"
+    />
   );
 }
 
@@ -13,9 +69,54 @@ export function Chip({ children, tone = "default", title }) {
   return <span className={`chip chip-${tone}`} title={title}>{children}</span>;
 }
 
+const SOURCE_LABEL = { github: "GitHub", jobs: "Jobs", web: "Web" };
+export function SourceTags({ sources }) {
+  return (
+    <span className="sources-tags">
+      {sources.map((s) => <span key={s} className={`src src-${s}`}>{SOURCE_LABEL[s] ?? s}</span>)}
+    </span>
+  );
+}
+
 export function Confidence({ level }) {
   if (!level) return null;
-  return <span className={`conf conf-${level.toLowerCase()}`}>{level} confidence</span>;
+  return (
+    <span className={`conf conf-${level.toLowerCase()}`} title="How many live sources returned data">
+      <span className="conf-dots" aria-hidden>
+        <i /><i /><i />
+      </span>
+      {level} confidence
+    </span>
+  );
+}
+
+/** Categorical stacked bar with a legend (identity never by color alone). */
+export function StackedBar({ items, label }) {
+  const total = items.reduce((a, b) => a + b.value, 0) || 1;
+  return (
+    <figure className="stacked">
+      <div className="stacked-bar" role="img" aria-label={label}>
+        {items.map((it, k) =>
+          it.value > 0 ? (
+            <span
+              key={it.name}
+              className={`seg ${it.className ?? `cat-${k + 1}`}`}
+              style={{ flexGrow: it.value / total }}
+              title={`${it.name}: ${it.display ?? it.value}`}
+            />
+          ) : null
+        )}
+      </div>
+      <figcaption className="legend">
+        {items.map((it, k) => (
+          <span key={it.name} className="legend-item">
+            <i className={`swatch ${it.className ?? `cat-${k + 1}`}`} />
+            {it.name} <span className="muted">{it.display ?? it.value}</span>
+          </span>
+        ))}
+      </figcaption>
+    </figure>
+  );
 }
 
 export function timeAgo(iso) {
