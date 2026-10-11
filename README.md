@@ -70,7 +70,7 @@ evidence IDs, and code then checks it:
                 │                                                                          │
  Vercel Cron ──►│ /api/refresh (daily 03:00 UTC, CRON_SECRET) → lib/refresh.js             │
                 │   active companies older than 6 days, stalest first, 3 in parallel,      │
-                │   200 s budget; leftovers next run                                       │
+                │   150 s budget; leftovers next run                                       │
                 │                                                                          │
                 │   collect ─► lib/github.js ─► GitHub REST API                ┐           │
                 │           ─► lib/jobs.js   ─► Greenhouse / Lever / Ashby     │ live      │
