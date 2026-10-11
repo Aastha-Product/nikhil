@@ -51,6 +51,10 @@ export function ScoreRing({ score, tier, size = 64 }) {
 }
 
 export function Avatar({ org, name, size = 36 }) {
+  if (!org) {
+    const initials = String(name).split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    return <span className="avatar avatar-initials" style={{ width: size, height: size, fontSize: size * 0.38 }} aria-hidden>{initials}</span>;
+  }
   return (
     // GitHub serves org avatars at github.com/<org>.png; a plain img keeps it dependency-free.
     // eslint-disable-next-line @next/next/no-img-element
@@ -119,6 +123,64 @@ export function StackedBar({ items, label }) {
   );
 }
 
+// ── Research status (§7) and evidence labels (§6) ──
+const RESEARCH_STATUS = {
+  queued: ["Queued", "pending"],
+  researching: ["Researching…", "pending"],
+  ready: ["Ready", "ok"],
+  partial: ["Partial", "warn"],
+  failed: ["Failed", "bad"],
+};
+export function ResearchStatus({ status }) {
+  const [label, tone] = RESEARCH_STATUS[status] ?? ["Unknown", "pending"];
+  return <span className={`rstatus rstatus-${tone}`}>{label}</span>;
+}
+
+export const SOURCE_TYPE_LABELS = {
+  repository: "Code repository",
+  job_posting: "Job posting",
+  engineering_blog: "Engineering blog",
+  conference_talk: "Conference talk",
+  company_page: "Company page",
+  third_party: "Third-party article",
+  api: "API",
+};
+export const EVIDENCE_STATUS_LABELS = {
+  directly_stated: "Directly stated",
+  technically_observed: "Technically observed",
+  inferred: "Inferred",
+  conflicting: "Conflicting",
+  unavailable: "Unavailable",
+};
+export const CATEGORY_LABELS = {
+  language: "Programming languages",
+  infrastructure: "Cloud & infrastructure",
+  activity: "Engineering activity",
+  context: "Company engineering context",
+  sales_relevance: "Sales relevance",
+};
+
+export function ConfidenceBadge({ level }) {
+  if (!level) return null;
+  const l = String(level).toLowerCase();
+  return (
+    <span className={`conf conf-${l}`} title="Rule-based: source tier, specificity, recency and corroboration">
+      <span className="conf-dots" aria-hidden><i /><i /><i /></span>
+      {l[0].toUpperCase() + l.slice(1)}
+    </span>
+  );
+}
+
+const FRESHNESS = { current: "Current", aging: "Aging", stale: "Stale", unknown: "Date unknown" };
+export function FreshnessBadge({ value }) {
+  return <span className={`fresh fresh-${value}`}>{FRESHNESS[value] ?? value}</span>;
+}
+
+export function formatDate(iso) {
+  if (!iso) return "date unavailable";
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 export function timeAgo(iso) {
   if (!iso) return "never";
   const s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
@@ -149,7 +211,7 @@ export function SetupNeeded() {
       <h2>Connect your accounts to start</h2>
       <p>The app is running, but it needs your keys before it can pull live research.</p>
       <ol>
-        <li>Create a Supabase project and run <code>supabase/schema.sql</code> in its SQL Editor.</li>
+        <li>Create a Supabase project and run <code>supabase/schema.sql</code>, then <code>supabase/migrations/002_evidence_and_runs.sql</code>, in its SQL Editor.</li>
         <li>Copy <code>.env.example</code> to <code>.env.local</code> and fill in every value.</li>
         <li>Restart the app, then run the first refresh (see README → “First refresh”).</li>
       </ol>

@@ -5,6 +5,7 @@
 import { getGithubSignals } from "../lib/github.js";
 import { getJobSignals } from "../lib/jobs.js";
 import { scoreCompany } from "../lib/score.js";
+import { buildEvidence, researchGaps } from "../lib/evidence.js";
 
 const [handle = "stripe", name = "Stripe", job_board] = process.argv.slice(2);
 const profile = {
@@ -17,22 +18,26 @@ const profile = {
 
 const t0 = Date.now();
 const [github, jobs] = await Promise.all([
-  getGithubSignals(handle),
+  getGithubSignals({ name, github_org: handle }),
   getJobSignals({ name, github_org: handle, job_board }, profile).catch((e) => ({ error: e.message })),
 ]);
 const scored = scoreCompany({ github, jobs: jobs?.error ? null : jobs, web: null }, profile);
+const evidence = buildEvidence({ name, github_org: handle }, { github, jobs, web: null });
+const gaps = researchGaps({ name, github_org: handle }, { github, jobs, web: null }, evidence);
 
 console.log(JSON.stringify({
   company: name,
   took_ms: Date.now() - t0,
-  languages: github.topLanguages,
+  languages: github.topLanguages.map(({ name, pct }) => ({ name, pct })),
   activity: github.activity,
-  service_repos: github.serviceRepos.slice(0, 8),
+  service_repos: github.serviceRepos.slice(0, 8).map((r) => r.name),
   ci: github.ci,
-  jobs: jobs && { board: jobs.board, guessed: jobs.guessed, eng_roles: jobs.total_eng_roles, intent_roles: jobs.intent_roles?.map((r) => r.title), tools: jobs.tools_mentioned, ci_pain: jobs.ci_pain?.map((p) => p.phrase), error: jobs.error },
+  jobs: jobs && { board: jobs.board, guessed: jobs.guessed, eng_roles: jobs.total_eng_roles, intent_roles: jobs.intent_roles?.map((r) => r.title), tools: jobs.tools_mentioned?.map((t) => `${t.name}×${t.count}`), ci_pain: jobs.ci_pain?.map((p) => p.phrase), error: jobs.error },
   fit_score: scored.fit_score,
   tier: scored.fit_tier,
   confidence: scored.confidence,
   breakdown: scored.score_breakdown.map((b) => `${b.label}: ${b.points}/${b.max} — ${b.evidence.join("; ")}`),
   infra: scored.infra_signals.map((i) => `${i.label} [${i.sources.join("+")}]`),
+  evidence: evidence.map((e) => `[${e.category}/${e.confidence}/${e.freshness}] ${e.claim} <${e.source_url}>`),
+  gaps: gaps.map((g) => `${g.area}: ${g.detail}`),
 }, null, 2));

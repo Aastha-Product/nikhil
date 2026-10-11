@@ -17,13 +17,19 @@ export default function RefreshButton({ companyId }) {
           startTransition(async () => {
             setMessage(null);
             const res = await refreshNow(companyId);
-            setMessage(res.ok ? "Updated with live data" : res.error);
+            setMessage(
+              !res.ok
+                ? { tone: "error", text: res.error }
+                : res.partial
+                  ? { tone: "warn", text: "Updated, but some sources failed — see research gaps." }
+                  : { tone: "ok", text: "Updated with live evidence." }
+            );
           })
         }
       >
-        {pending ? "Researching… (~30s)" : "Refresh now"}
+        {pending ? "Researching… (~1 min)" : "Refresh now"}
       </button>
-      {message && <span className="muted small">{message}</span>}
+      {message && <span className={`form-msg ${message.tone}`}>{message.text}</span>}
     </div>
   );
 }

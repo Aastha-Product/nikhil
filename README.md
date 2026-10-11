@@ -1,108 +1,184 @@
 # Tech Stack Scout
 
-AI-powered tech-stack intelligence for **FlowForge**'s target accounts. It keeps Nikhil's Supabase
-watchlist current with **live** engineering context, ranks every account with a **0–100 fit score**,
-and has **Gemini Flash** write a two-paragraph briefing plus a specific first outreach line.
+Turns public engineering signals into **evidence-backed tech-stack intelligence** and a personalized
+sales-call opening line for **FlowForge**'s target accounts, refreshed automatically every week.
 
-> MESA Cohort C4 · AI and its Applications · Section 1 Final · Problem Statement 4
+> MESA Cohort C4 · AI and its Applications · Section 1 Final · Problem Statement 4.
+> Built to the *Tech Stack Scout — Final Architecture Document* (v1.0); section numbers below (§) refer to it.
 
-## What Nikhil gets per company
+**Principles:** evidence before AI · every finding traceable to a source · unknowns shown, never guessed ·
+edits change wording, never evidence · everything works in the deployed app with live data.
 
-| | Source (live) |
+## What Nikhil sees
+
+**Dashboard:** accounts worth calling this week, KPI tiles, the watchlist with fit score and research
+status, **Add company / Remove / Restore** (stored in Supabase), the automatic refresh log, and outreach
+results by tier.
+
+**Company report (§8):**
+
+| Section | What it shows |
 |---|---|
-| Dominant languages (% of code) | GitHub REST API |
-| Cloud / infra / CI tooling, with evidence | GitHub + job posts + Google Search |
-| Build activity (repos pushed in 30 / 90 days) | GitHub |
-| Open platform / DevEx / SRE roles | Greenhouse · Lever · Ashby public job-board APIs |
-| Recent engineering blog posts & talks, with links | Gemini + Google Search grounding |
-| **Fit score, tier (A/B/C), confidence, and why** | Computed in code (`lib/score.js`) |
-| **2-paragraph summary, first line, 3 talking points** | Gemini Flash (`lib/gemini.js`) |
-| What changed since last week | `intel_history` snapshots |
+| Header | Name, website, GitHub, research status (Queued · Researching · Ready · Partial · Failed), last successful refresh |
+| Quick tech-stack snapshot | Languages, cloud & infrastructure, engineering activity, each with confidence and a link to its evidence |
+| Engineering context summary | Exactly two paragraphs by Gemini Flash; `E7`-style citations link to the evidence rows |
+| Suggested opening line | One sentence anchored to a high/medium-confidence finding, with that source. **Never sent automatically** |
+| Fit for FlowForge | 0–100 score computed in code, with the evidence behind each point |
+| Evidence & sources | Every finding: claim, source link, source type and tier, source and observed dates, status, confidence, freshness, caveat |
+| Research gaps | What couldn't be verified, and which sources were missing or failed |
+| Edit · Regenerate · Regenerate with feedback · Version history | Rewrites wording from the **same** evidence; restore any earlier version (§9) |
 
-The opener is **checked in code**: it must mention at least one real extracted signal (a repo,
-language, tool, role or talk). Otherwise Gemini is asked to rewrite it.
+## Research methodology
+
+**Sources (§5)**
+
+| Tier | Source | How it's collected |
+|---|---|---|
+| 1 | Company GitHub repositories | GitHub REST API: languages, topics, files, CI workflows, push activity |
+| 1 | Official job postings | Greenhouse / Lever / Ashby public APIs: engineering roles and the tools they list |
+| 1 | Official engineering blog / docs | Found via Gemini Google Search grounding; real page URL kept |
+| 2 | Conference talks, company news | Same discovery; labeled as past talks or announcements |
+| 3 | Third-party articles | Same discovery; labeled third-party, low confidence |
+
+Professional-network pages (e.g. LinkedIn) are **not** scraped. If a source can't be reached, it's
+recorded as a research gap, not treated as checked.
+
+**Confidence rules (§6), applied in code (`lib/evidence.js`), never by the AI**
+
+- **High:** a direct, specific signal from a primary source (e.g. a current official job post lists
+  Kubernetes), or independent source types that agree.
+- **Medium:** credible but limited (e.g. a tool in a public repo, where production use is unclear; a past
+  talk; a job board matched by name only).
+- **Low:** third-party reporting, or a small or old single-source signal. Stale evidence is never high.
+- **Freshness:** code and jobs are *current* ≤ 90 days and *aging* ≤ 1 year; blogs and talks are
+  *current* ≤ 1 year and *aging* ≤ 2 years.
+
+**AI rules (§8, §13):** Gemini Flash receives only the evidence bundle (IDs `E1…`). The output must cite
+evidence IDs, and code then checks it:
+
+- The opening line must cite at least one high/medium finding.
+- Any technology named without supporting evidence is rejected and the output regenerated (or flagged).
+- If there's too little evidence, the report says so instead of padding.
 
 ## Components Map
 
 ```
-                    ┌──────────────────────── VERCEL ────────────────────────┐
-                    │                                                        │
- Nikhil ──browser──►│  Next.js UI  (/ watchlist, /company/[id] detail)       │
-                    │     │ server components + server actions               │
-                    │     ▼                                                  │
-                    │  lib/data.js ─────────────────────────────┐            │
-                    │                                           │            │
- Vercel Cron ──────►│  /api/refresh  (daily, CRON_SECRET)       │            │
-  0 3 * * *         │     │ lib/refresh.js: stalest first,      │            │
-                    │     │ only rows older than 6 days         │            │
-                    │     ├──► lib/github.js ──► GitHub REST API │            │
-                    │     ├──► lib/jobs.js ────► Greenhouse / Lever / Ashby  │
-                    │     ├──► lib/gemini.js ──► Gemini Flash (+ Google Search)
-                    │     ├──► lib/score.js  (fit score, pure code)          │
-                    │     ▼                                     ▼            │
-                    └─────┼─────────────────────────────────────┼────────────┘
-                          ▼                                     ▼
-              ┌───────────────────── SUPABASE (Postgres) ─────────────────────┐
-              │ companies (watchlist — edited in Table Editor, no code)        │
-              │ product_profile (what FlowForge targets — drives the score)    │
-              │ company_intel (latest research)   intel_history (weekly diff)  │
-              └────────────────────────────────────────────────────────────────┘
+                ┌──────────────────────────────── VERCEL ─────────────────────────────────┐
+ Nikhil ───────►│ Next.js UI: dashboard (/) · company report (/company/[id])               │
+                │   server actions: add / remove / restore company, refresh now,           │
+                │   edit · regenerate · feedback · restore version, outreach status         │
+                │                                                                          │
+ Vercel Cron ──►│ /api/refresh (daily 03:00 UTC, CRON_SECRET) → lib/refresh.js             │
+                │   active companies older than 6 days, stalest first, 3 in parallel,      │
+                │   200 s budget; leftovers next run                                       │
+                │                                                                          │
+                │   collect ─► lib/github.js ─► GitHub REST API                ┐           │
+                │           ─► lib/jobs.js   ─► Greenhouse / Lever / Ashby     │ live      │
+                │           ─► lib/gemini.js ─► Gemini Flash + Google Search   ┘           │
+                │   verify  ─► lib/evidence.js (tiers, confidence, freshness, gaps)        │
+                │   score   ─► lib/score.js (fit 0–100, code only)                         │
+                │   write   ─► lib/gemini.js (2 paragraphs + opening line, cites evidence) │
+                │   check   ─► lib/evidence.js (citations, unsupported claims)             │
+                └──────────────────────────────────┬───────────────────────────────────────┘
+                                                   ▼
+          ┌──────────────────────────── SUPABASE (Postgres, RLS on) ────────────────────────┐
+          │ companies (watchlist, status) · evidence (one row per finding + source)         │
+          │ company_intel (profile, report, gaps) · report_versions (edit/regenerate history)│
+          │ refresh_runs (job log) · intel_history (weekly diff) · product_profile (ICP)     │
+          └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 | # | Component | Tech | Responsibility |
 |---|---|---|---|
-| 1 | Dashboard UI | Next.js 16 App Router | Ranked watchlist, metrics, tier funnel, company briefing, copy opener, outreach status, "Refresh now" |
-| 2 | Refresh API | Route handler `/api/refresh` | Orchestrates the pipeline; protected by `CRON_SECRET`; time-budgeted |
-| 3 | Scheduler | Vercel Cron (`vercel.json`) | Runs daily; any company older than 6 days is refreshed, so every account is refreshed weekly |
-| 4 | Engineering signals | GitHub REST API | Languages, infra hints, service repos, CI workflows, activity |
-| 5 | Hiring signals | Greenhouse / Lever / Ashby APIs | Engineering roles, platform/DevEx roles, tools in job descriptions |
-| 6 | Web research | Gemini + Google Search grounding | Recent blog posts / talks, with source links |
-| 7 | Fit scoring | `lib/score.js` (pure, unit-tested) | 0–100 score, tier, confidence, evidence per criterion |
-| 8 | AI writer | Gemini Flash via `@google/genai` | Structured JSON: summary, first line, reference, talking points |
-| 9 | Database | Supabase Postgres | Watchlist, product profile, intel, history; RLS on, server-only access |
-| 10 | Hosting | Vercel | UI, functions, cron, public URL |
+| 1 | Dashboard & report UI | Next.js 16 App Router | Watchlist management, report, evidence, gaps, edit/regenerate, status |
+| 2 | Server actions | `app/actions.js` | Validated writes to Supabase; research starts in the background on add |
+| 3 | Refresh API | `/api/refresh` | Batch refresh, `CRON_SECRET`-protected, logs each run |
+| 4 | Scheduler | Vercel Cron (`vercel.json`) | Daily trigger; 6-day staleness rule = weekly refresh per account |
+| 5 | Code signals | GitHub REST API | Languages, tools, CI, activity, with repo URLs and dates |
+| 6 | Hiring signals | Greenhouse / Lever / Ashby | Roles and tools, with job URLs and dates |
+| 7 | Web discovery | Gemini + Google Search grounding | Blogs, talks, docs, with resolved page URLs |
+| 8 | Evidence layer | `lib/evidence.js` (pure, unit-tested) | Evidence records, confidence, freshness, corroboration, gaps, output checks |
+| 9 | Fit scoring | `lib/score.js` (pure, unit-tested) | 0–100 score and tier for FlowForge |
+| 10 | AI writer | Gemini Flash (`@google/genai`) | Summary, opening line, talking points, rewrites; structured JSON |
+| 11 | Database | Supabase Postgres | Tables above; secret key used only on the server |
+| 12 | Hosting | Vercel + GitHub | Public URL, functions, cron, source control |
 
 **No Claude API is used anywhere.** All AI calls go through `lib/gemini.js`.
 
-## Fit score rubric (0–100)
+## Data model (§12)
 
-| Criterion | Max | Signal |
+| Table | Purpose |
+|---|---|
+| `companies` | Watchlist: name, normalized name, website, GitHub handle, job board, `active`, `research_status`, outreach status |
+| `evidence` | One row per finding: category, claim, excerpt, source URL/title/type/tier, source date, observed date, status, confidence, freshness, caveat |
+| `company_intel` | Latest profile and report: languages, tools, activity, summary, opening line, cited evidence, research gaps, fit score, last attempted/successful refresh |
+| `report_versions` | Every generated, regenerated, edited and restored version of the summary and opening line |
+| `refresh_runs` | Each refresh job: trigger, start/end, status, attempted/succeeded/failed/deferred, errors |
+| `intel_history` | Weekly snapshots for "what changed since last week" |
+| `product_profile` | What FlowForge targets (languages, clouds, runtimes); drives the fit score |
+
+Simplification: source fields live on each `evidence` row rather than in a separate `sources` table.
+Traceability is the same.
+
+## Fit score for FlowForge (0–100, code only)
+
+| Criterion | Max | Evidence |
 |---|---|---|
-| Language fit | 25 | Share of code in FlowForge's target languages |
+| Language fit | 25 | Share of code in Go, TypeScript, Python, Java, Kotlin, Rust |
 | Cloud & infra fit | 25 | Kubernetes/Docker/Helm, AWS/GCP, Terraform/Pulumi |
 | Microservices signal | 15 | Service-style repos, gRPC, Bazel/Nx/Turborepo, Kafka |
 | Build velocity | 15 | Repos pushed in the last 90 days |
-| CI pain signal | 10 | CI workflow density; "build times / developer productivity" in job posts |
-| Buying intent | 10 | Open platform / DevEx / SRE / infra roles |
+| CI & build activity | 10 | CI workflow density; build-focus mentions in job posts |
+| Platform / DevEx hiring | 10 | Open platform, DevEx, SRE or infra roles |
 
-**A ≥ 75** call this week · **B 50–74** nurture · **C < 50** deprioritize. Confidence reflects how many
-sources returned data. Edit `product_profile` in Supabase to change what counts as a fit, with no code.
+**A ≥ 75** worth calling this week · **B 50–74** nurture · **C < 50** deprioritize. The score describes
+fit with the product, not need or buying intent.
+
+## Failure handling (§10, §13)
+
+| Situation | Behavior |
+|---|---|
+| No GitHub account / no job board | Research continues with other sources; listed as a research gap |
+| Company name ambiguous | GitHub is matched via the company website; a name-only match is capped at medium and flagged |
+| A source errors this run | Last known evidence from that source is kept and marked "carried over"; status = Partial |
+| Whole refresh fails | Last good report is kept; status = Failed with the error shown |
+| AI names an unsupported tool / no citation | Regenerated once with a correction; still failing → flagged in the report |
+| Too little evidence | No padded summary; "not enough evidence" for the opening line |
+| Weekly job doesn't finish | Logged as Partial; deferred companies are picked up the next day |
 
 ---
 
-## Setup (about 20 minutes)
+## Setup
 
-### 1. Create the four accounts and keys
+### 1. Accounts and keys
 
 | Service | What to do | Env var |
 |---|---|---|
-| **Supabase** (supabase.com, free) | New project → **SQL Editor** → paste and run `supabase/schema.sql` → **Project Settings → API Keys**: copy the Project URL and the **secret** key (`sb_secret_…`, or the legacy `service_role` key) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
-| **Google AI Studio** (aistudio.google.com) | **Get API key** → create key. Check **Rate limits** to see which Flash models your key can call | `GEMINI_API_KEY`, `GEMINI_MODEL` |
-| **GitHub** | Settings → Developer settings → **Fine-grained tokens** → generate (public repositories, read-only, no extra permissions) | `GITHUB_TOKEN` |
-| **Vercel** (vercel.com) | Sign up with GitHub | — |
-
-Generate a `CRON_SECRET`:
+| **Supabase** | New project → **SQL Editor** → run `supabase/schema.sql`, then `supabase/migrations/002_evidence_and_runs.sql` → **Project Settings → API Keys**: Project URL + **secret** key | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
+| **Google AI Studio** | **Get API key**; check which Flash models your key can call | `GEMINI_API_KEY`, `GEMINI_MODEL` |
+| **GitHub** | Fine-grained token, public repositories, read-only | `GITHUB_TOKEN` |
+| **Vercel** | Sign up with GitHub | — |
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
+Use that as `CRON_SECRET`.
+
 ### 2. Run locally
 
 ```bash
-cp .env.example .env.local      # then fill in every value
+cp .env.example .env.local
+```
+
+Fill in every value, then:
+
+```bash
 npm install
-npm run dev                     # http://localhost:3000
+```
+
+```bash
+npm run dev
 ```
 
 ### 3. First refresh
@@ -111,48 +187,40 @@ npm run dev                     # http://localhost:3000
 curl -H "Authorization: Bearer YOUR_CRON_SECRET" "http://localhost:3000/api/refresh?force=1"
 ```
 
-It takes about 20–40 seconds per company (two at a time). Or open any company and click **Refresh now**.
+About 20–60 seconds per company, three at a time. Or click **Refresh now** on a company report.
 
-### 4. Deploy to Vercel
+### 4. Deploy
 
-1. Push this folder to a GitHub repo (`.env.local` is git-ignored).
-2. Vercel → **Add New → Project** → import the repo (framework: Next.js).
-3. Add all six env vars from `.env.example` → **Deploy**.
-4. Check **Settings → Cron Jobs** shows `/api/refresh`. Run it once with the curl above against your
-   `*.vercel.app` URL.
+Push to GitHub → Vercel **Add New → Project** → import → add the six env vars → **Deploy**. Check
+**Settings → Cron Jobs** lists `/api/refresh`.
 
-## How Nikhil manages the watchlist (no code)
+## Managing the watchlist
 
-Supabase → **Table Editor → `companies`** (the dashboard has a direct link):
-
-- **Add:** Insert row → `name` (e.g. *Datadog*) and `github_org` (the handle in `github.com/<handle>`).
-  `job_board` is optional (`greenhouse:datadog`, `lever:<name>`, `ashby:<name>`); if blank, the app
-  tries to find it automatically.
-- **Remove:** select the row → Delete. Its research is deleted with it.
-- **Track outreach:** set `outreach_status` here or with the dropdown on the company page.
-
-The next daily run researches new companies automatically.
-
-## Metrics on the dashboard
-
-| Metric | Why it matters |
-|---|---|
-| Prep time per sprint | Brief's baseline: 2–3 h per 20 companies (≈7.5 min each), compared with ≈1 min to review a briefing |
-| Research ≤ 7 days old | Stale research never follows Nikhil into a call |
-| Openers citing a real signal | Specific openers are what drive the 30% higher close rate |
-| Reply / meeting rate by tier | Checks the rubric: Tier A should outperform Tier C |
+Use **+ Add company** on the dashboard: enter a name and, ideally, the website. A GitHub handle and job
+board are optional; the app finds them where it can. Research starts immediately and the page updates
+when it's done. **Remove** takes a company off the weekly refresh but keeps its history, and
+**Removed companies → Restore** brings it back. The same records can be inspected or edited in the
+Supabase Table Editor.
 
 ## Tests
 
 ```bash
-npm test                                   # fit-score unit tests
-node scripts/smoke.mjs stripe Stripe       # live GitHub + job-board pull, no keys needed
+npm test
 ```
 
-## Limits & future work
+Runs 14 unit tests: evidence rules (tiers, confidence, corroboration, freshness, gaps, unsupported claims,
+citations) and the fit score.
 
-- GitHub only shows **public** code. Companies with little open source get *Low confidence*, not a low
-  score. Job posts and web research fill the gap.
-- First 100 repos per org (sorted by most recent push); languages from the 12 most active.
-- Future: CRM write-back (HubSpot/Salesforce), Slack alert when a Tier-A account changes stack,
-  auth for multiple reps.
+```bash
+node scripts/smoke.mjs stripe Stripe
+```
+
+Pulls live GitHub and job-board data and builds evidence. No Supabase or Gemini needed.
+
+## Limits
+
+- Public signals only: private code, internal roadmaps and production status aren't visible, and the
+  report says so.
+- First 100 repos per org (most recently pushed); languages from the 12 most active.
+- No CRM integration, no automatic emails, no multi-user auth (out of scope for the exam submission, §16).
+  Anyone with the URL can edit the watchlist; add authentication before real use.
