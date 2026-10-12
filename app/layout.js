@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import Motion from "./components/Motion";
 import Sidebar from "./components/Sidebar";
 import "./globals.css";
 
@@ -22,6 +23,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
+        <Suspense fallback={null}>
+          <Motion />
+        </Suspense>
         <div className="shell">
           <Suspense fallback={<SidebarPlaceholder />}>
             <Sidebar />

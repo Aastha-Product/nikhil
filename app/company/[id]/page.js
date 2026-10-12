@@ -117,7 +117,7 @@ async function CompanyReport({ params, searchParams }) {
       )}
       {busy && (
         <div className="banner info">
-          <span className="spinner" aria-hidden /> Researching: reading public code, job posts and engineering articles. This page updates by itself (about a minute).
+          <span className="orbit" aria-hidden /> Researching: reading public code, job posts and engineering articles. This page updates by itself (about a minute).
         </div>
       )}
       {i?.status === "error" && <div className="banner bad">The latest refresh failed ({i.error_message}). Showing the last good report.</div>}

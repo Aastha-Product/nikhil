@@ -14,7 +14,7 @@ export default function NewResearch() {
     <section className="research">
       <div className="research-head">
         <span className="start-badge"><span className="live-dot" aria-hidden /> Live public data · about 1 minute</span>
-        <h1>Who are you calling next?</h1>
+        <h1>Who are you <span className="grad-text">calling next?</span></h1>
         <p className="muted">Enter the company. We’ll research how it builds software and draft your opening line.</p>
       </div>
 

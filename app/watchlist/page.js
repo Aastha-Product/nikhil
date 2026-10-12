@@ -63,9 +63,9 @@ async function Watchlist({ searchParams }) {
       </header>
 
       <section className="stat-row">
-        <Stat value={m.tierA} label="worth calling this week" tone="accent" />
-        <Stat value={`${m.reviewMinutes} min`} label={`to prep all ${m.total}, vs ~${Math.round((m.manualMinutes / 60) * 10) / 10} h by hand`} />
-        <Stat value={pct(m.verifiedPct)} label="opening lines backed by a source" />
+        <Stat value={m.tierA} label="worth calling this week" tone="blue" icon="star" />
+        <Stat value={`${m.reviewMinutes} min`} label={`to prep all ${m.total}, vs ~${Math.round((m.manualMinutes / 60) * 10) / 10} h by hand`} tone="violet" icon="clock" />
+        <Stat value={pct(m.verifiedPct)} label="opening lines backed by a source" tone="mint" icon="check" />
       </section>
 
       <nav className="tabs" aria-label="Filter by fit">
@@ -203,11 +203,22 @@ async function Watchlist({ searchParams }) {
   );
 }
 
-function Stat({ value, label, tone }) {
+const STAT_ICONS = {
+  star: "m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7L12 3Z",
+  clock: "M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm0 2a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm1 2v4.6l3.2 1.9-1 1.7L11 12.7V7h2Z",
+  check: "M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7 9.5 16.2Z",
+};
+
+function Stat({ value, label, tone, icon }) {
   return (
-    <div className={`stat-card ${tone ? `stat-${tone}` : ""}`}>
-      <div className="stat-big">{value}</div>
-      <div className="muted small">{label}</div>
+    <div className={`stat-card stat-${tone}`}>
+      <span className="stat-icon" aria-hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d={STAT_ICONS[icon]} fill="currentColor" /></svg>
+      </span>
+      <div>
+        <div className="stat-big">{value}</div>
+        <div className="muted small">{label}</div>
+      </div>
     </div>
   );
 }

@@ -41,7 +41,9 @@ export function ScoreRing({ score, tier, size = 64 }) {
           strokeWidth={stroke}
           fill="none"
           strokeLinecap="round"
-          strokeDasharray={`${(c * (score ?? 0)) / 100} ${c}`}
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - (score ?? 0) / 100)}
+          style={{ "--c": c }}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>

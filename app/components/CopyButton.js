@@ -7,7 +7,7 @@ export default function CopyButton({ text }) {
   return (
     <button
       type="button"
-      className="btn btn-small"
+      className={`btn btn-small ${copied ? "copied" : ""}`}
       onClick={async () => {
         await navigator.clipboard.writeText(text);
         setCopied(true);

@@ -543,3 +543,139 @@ a.link-arrow:hover { transform: translateX(3px); }
 .no-score { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-2); background: var(--surface-2); border: 1px dashed var(--border-strong); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
 .no-score::before { content: "?"; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.68rem; font-weight: 700; }
 .no-score-large { font-size: 0.88rem; padding: 6px 14px; }
+
+/* ═══════════════════════ Brand palette (Dribbble AI-SaaS style) ═══════════════════════
+   One indigo → blue brand gradient for primary actions and active states, plus soft pastel
+   tints for icon tiles. Data colours (fit tiers) keep their validated blue ramp. */
+:root {
+  --brand-1: #5b5bf0;
+  --brand-2: #2a78d6;
+  --brand-grad: linear-gradient(135deg, #5b5bf0 0%, #2a78d6 100%);
+  --brand-glow: rgba(91, 91, 240, 0.35);
+  --blue-soft: #e8f1fd;
+  --violet: #6d4fe0;   --violet-soft: #efeafe;
+  --mint: #17955f;     --mint-soft: #e5f6ee;
+  --amber: #b7791f;    --amber-soft: #fff3df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand-1: #7b7bff; --brand-glow: rgba(123, 123, 255, 0.35);
+    --blue-soft: #1b2a40; --violet: #a993ff; --violet-soft: #2a2245;
+    --mint: #3fc48a; --mint-soft: #16302a; --amber: #e0a94a; --amber-soft: #352a16;
+  }
+}
+
+/* Soft aurora glow behind the content */
+.shell-main { position: relative; isolation: isolate; }
+.shell-main::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 420px; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(520px 260px at 78% -40px, color-mix(in srgb, var(--brand-1) 16%, transparent), transparent 70%),
+    radial-gradient(460px 240px at 18% -60px, color-mix(in srgb, var(--brand-2) 14%, transparent), transparent 70%);
+}
+
+.grad-text { background: var(--brand-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand-mark { background: var(--brand-grad); box-shadow: 0 4px 14px var(--brand-glow); }
+
+/* Primary actions use the brand gradient; hover slides the gradient and lifts */
+.btn-primary, .tab.active, .acc[open] .acc-chev {
+  background: var(--brand-grad); background-size: 160% 160%; border-color: transparent; color: #fff;
+}
+.btn:hover:not(:disabled), .btn-primary:hover:not(:disabled), .btn-outline:hover:not(:disabled), .refresh .btn:hover:not(:disabled) {
+  background: var(--brand-grad); background-size: 160% 160%; background-position: 100% 50%;
+  border-color: transparent; color: #fff; box-shadow: 0 10px 24px var(--brand-glow);
+}
+.btn-primary { box-shadow: 0 8px 22px var(--brand-glow); transition: background-position 400ms ease, transform 180ms ease, box-shadow 180ms ease; }
+.tab.active { box-shadow: 0 4px 12px var(--brand-glow); }
+
+/* Sidebar: active item gets a gradient tint, a gradient edge and a coloured icon */
+.side-link.active { background: linear-gradient(90deg, color-mix(in srgb, var(--brand-1) 14%, transparent), color-mix(in srgb, var(--brand-2) 6%, transparent)); color: var(--text); }
+.side-link.active .side-icon { color: var(--brand-1); opacity: 1; }
+.side-link.active::before { background: var(--brand-grad); width: 4px; }
+.side-link:hover { background: color-mix(in srgb, var(--brand-1) 9%, transparent); color: var(--text); }
+
+/* Stat cards: pastel icon tiles */
+.stat-card { display: flex; align-items: center; gap: 14px; }
+.stat-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; transition: transform 220ms ease; }
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-6deg); }
+.stat-blue .stat-icon { background: var(--blue-soft); color: var(--brand-2); }
+.stat-violet .stat-icon { background: var(--violet-soft); color: var(--violet); }
+.stat-mint .stat-icon { background: var(--mint-soft); color: var(--mint); }
+.stat-card::before { width: 4px; }
+.stat-blue::before { background: linear-gradient(180deg, var(--brand-1), var(--brand-2)); }
+.stat-violet::before { background: var(--violet); }
+.stat-mint::before { background: var(--mint); }
+.stat-blue .stat-big { color: var(--brand-2); }
+
+/* New research card: brand gradient border with a slow, soft glow */
+.research-card::before { background: linear-gradient(135deg, var(--brand-1), var(--brand-2) 40%, #8fbcf3 70%, transparent); }
+.research-card { animation: glow 5s ease-in-out infinite alternate; }
+@keyframes glow {
+  from { box-shadow: 0 1px 2px rgba(23, 24, 26, 0.04), 0 18px 50px color-mix(in srgb, var(--brand-1) 10%, transparent); }
+  to   { box-shadow: 0 1px 2px rgba(23, 24, 26, 0.04), 0 26px 70px color-mix(in srgb, var(--brand-1) 22%, transparent); }
+}
+.start-badge { border-color: color-mix(in srgb, var(--brand-1) 30%, var(--border)); }
+.step-num { background: var(--brand-grad); color: #fff; }
+.line-card::before { background: var(--brand-grad); }
+
+/* ═══════════════════════ Motion ═══════════════════════ */
+
+/* Page content rises in, card by card (backwards fill so hover transforms still work afterwards) */
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.container > *, .rows > li, .acc-group > *, .overview > *, .overview-grid > *, .stack-sections > *, .stat-row > *, .steps > li {
+  animation: rise 460ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.container > *:nth-child(2), .rows > li:nth-child(2), .acc-group > *:nth-child(2), .overview > *:nth-child(2), .overview-grid > *:nth-child(2), .stack-sections > *:nth-child(2), .stat-row > *:nth-child(2), .steps > li:nth-child(2) { animation-delay: 50ms; }
+.container > *:nth-child(3), .rows > li:nth-child(3), .acc-group > *:nth-child(3), .overview > *:nth-child(3), .stack-sections > *:nth-child(3), .stat-row > *:nth-child(3), .steps > li:nth-child(3) { animation-delay: 100ms; }
+.container > *:nth-child(4), .rows > li:nth-child(4), .acc-group > *:nth-child(4), .stack-sections > *:nth-child(4) { animation-delay: 150ms; }
+.container > *:nth-child(5), .rows > li:nth-child(5), .stack-sections > *:nth-child(5) { animation-delay: 200ms; }
+.container > *:nth-child(n+6), .rows > li:nth-child(6) { animation-delay: 250ms; }
+.rows > li:nth-child(7) { animation-delay: 290ms; }
+.rows > li:nth-child(8) { animation-delay: 330ms; }
+.rows > li:nth-child(n+9) { animation-delay: 370ms; }
+
+/* Click: ripple from the click point (added by Motion.js) + a small press-down */
+.has-ripple { overflow: hidden; }
+.ripple {
+  position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+  background: currentColor; opacity: 0.2; transform: scale(0);
+  animation: ripple 620ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.btn .ripple { background: #fff; opacity: 0.35; }
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+.btn:active:not(:disabled), .tab:active, .side-link:active, .stack-chip:active, .recent-chip:active, .btn-text:active:not(:disabled) { transform: scale(0.96); }
+.row:active { transform: scale(0.99); }
+.acc > summary:active { transform: scale(0.995); }
+
+/* Page-change progress bar */
+.nav-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100; pointer-events: none; transition: opacity 300ms ease; }
+.nav-progress > span { display: block; height: 100%; background: var(--brand-grad); transform-origin: left; transition: transform 220ms ease; box-shadow: 0 0 12px var(--brand-glow); }
+
+/* Data animates in: score bars fill, rings sweep, numbers pop */
+.meter-fill { transform-origin: left; animation: grow 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms backwards; }
+@keyframes grow { from { transform: scaleX(0); } }
+.ring-fill { animation: ring-sweep 1100ms cubic-bezier(0.2, 0.7, 0.2, 1) 150ms backwards; }
+@keyframes ring-sweep { from { stroke-dashoffset: var(--c); } }
+.ring-label, .score-pill, .stat-big { animation: pop 500ms cubic-bezier(0.3, 1.4, 0.5, 1) 200ms backwards; }
+@keyframes pop { from { opacity: 0; transform: scale(0.85); } }
+
+/* Copy → "Copied ✓" pops green */
+.btn.copied, .btn.copied:hover { background: var(--good) !important; border-color: var(--good) !important; color: #fff; box-shadow: 0 6px 18px rgba(12, 163, 12, 0.3); animation: pop 360ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+
+/* AI working: glowing gradient orbit */
+.orbit {
+  display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: -4px; margin-right: 8px;
+  background: conic-gradient(from 0deg, transparent 0 20%, var(--brand-1), var(--brand-2), transparent 95%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 6px var(--brand-glow)); animation: spin 0.9s linear infinite;
+}
+
+/* Dropdown chevron gets the brand gradient when open; tabs slide colour */
+.acc[open] .acc-chev { box-shadow: 0 4px 10px var(--brand-glow); }
+.tab { transition: background 200ms ease, color 200ms ease, transform 160ms ease, box-shadow 200ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .research-card { animation: none; }
+  .ripple, .nav-progress { display: none; }
+}
