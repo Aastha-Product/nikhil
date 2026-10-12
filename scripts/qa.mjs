@@ -40,7 +40,7 @@ const researched = active.filter((c) => one(c.company_intel)?.last_refreshed);
 check("Scoping", "Every active company has been researched", researched.length === active.length, `${researched.length}/${active.length}`);
 const fresh = researched.filter((c) => now - Date.parse(one(c.company_intel).last_refreshed) <= 7 * 864e5);
 check("Scoping", "Research is ≤ 7 days old (weekly refresh)", fresh.length === researched.length, `${fresh.length}/${researched.length} fresh`);
-const cronRuns = runs.filter((r) => r.trigger === "cron");
+const { data: cronRuns } = await db.from("refresh_runs").select("*").eq("trigger", "cron").order("started_at", { ascending: false }).limit(5);
 check("Scoping", "Scheduled job has run in production", cronRuns.length > 0, cronRuns[0] ? `last cron ${cronRuns[0].started_at} (${cronRuns[0].status})` : "none");
 const withStack = researched.filter((c) => {
   const i = one(c.company_intel);
