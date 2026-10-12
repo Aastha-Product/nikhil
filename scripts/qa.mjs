@@ -22,7 +22,7 @@ for (const p of ["/", "/watchlist", "/watchlist?tier=A", "/watchlist?open=log", 
   check("Working link", `GET ${p}`, r.status === 200 && r.ms < 8000, `${r.status} in ${r.ms} ms`);
 }
 const home = await get("/");
-check("Working link", "New research page renders its form", /Who are you calling next/.test(home.text) && /name="name"/.test(home.text));
+check("Working link", "New research page renders its form", /Who are you[^<]*<span[^>]*>calling next/.test(home.text) && /name="name"/.test(home.text));
 check("Working link", "No dev overlay / error page in production", !/nextjs-portal|Application error|Internal Server Error/.test(home.text));
 
 // ───────── Data ─────────
