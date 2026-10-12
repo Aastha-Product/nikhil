@@ -13,7 +13,7 @@ import StatusSelect from "@/app/components/StatusSelect";
 import VersionRestore from "@/app/components/VersionRestore";
 import { RemoveButton, RestoreButton } from "@/app/components/WatchlistButtons";
 import {
-  Accordion, Avatar, CATEGORY_LABELS, Chip, ConfidenceBadge, EVIDENCE_STATUS_LABELS, formatDate, FreshnessBadge,
+  Accordion, Avatar, CATEGORY_LABELS, NoScore, Chip, ConfidenceBadge, EVIDENCE_STATUS_LABELS, formatDate, FreshnessBadge,
   ResearchStatus, ScoreRing, SetupNeeded, SOURCE_TYPE_LABELS, TIER_TEXT, timeAgo,
 } from "@/app/components/ui";
 
@@ -93,6 +93,9 @@ async function CompanyReport({ params, searchParams }) {
           </div>
         </div>
         <div className="report-actions">
+          {i?.last_refreshed && i.fit_score == null && (
+            <div className="report-score"><NoScore size="large" /></div>
+          )}
           {i?.fit_score != null && (
             <div className="report-score" title="How well this company fits FlowForge, computed from the evidence">
               <ScoreRing score={i.fit_score} tier={i.fit_tier} size={56} />
@@ -305,6 +308,20 @@ function EvidenceTab({ ev, gaps, open }) {
 // ─────────────────────────── Fit score ───────────────────────────
 
 function ScoreTab({ i, history }) {
+  if (i.fit_score == null) {
+    return (
+      <section className="card">
+        <div className="score-hero">
+          <NoScore size="large" />
+        </div>
+        <p className="muted">
+          We found no medium- or high-confidence public evidence about how this company builds software, so we don’t give it a fit score.
+          Missing evidence isn’t the same as a bad fit. Check the <b>Evidence</b> tab for what we couldn’t verify; adding the company’s
+          GitHub handle or job board and refreshing usually fixes this.
+        </p>
+      </section>
+    );
+  }
   return (
     <section className="card">
       <div className="score-hero">
@@ -328,7 +345,7 @@ function ScoreTab({ i, history }) {
           </li>
         ))}
       </ul>
-      {history.length > 1 && <p className="muted small">Score over time: {history.map((h) => h.fit_score).join(" → ")}</p>}
+      {history.filter((h) => h.fit_score != null).length > 1 && <p className="muted small">Score over time: {history.filter((h) => h.fit_score != null).map((h) => h.fit_score).join(" → ")}</p>}
     </section>
   );
 }

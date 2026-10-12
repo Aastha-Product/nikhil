@@ -5,7 +5,7 @@ import { computeMetrics, getRecentRuns, getWatchlist } from "@/lib/data";
 import { isConfigured } from "@/lib/supabaseAdmin";
 import AutoRefresh from "../components/AutoRefresh";
 import { RemoveButton, RestoreButton } from "../components/WatchlistButtons";
-import { Accordion, Avatar, Chip, ResearchStatus, SetupNeeded, STATUS_LABELS, TierPill, timeAgo } from "../components/ui";
+import { Accordion, Avatar, Chip, NoScore, ResearchStatus, SetupNeeded, STATUS_LABELS, TierPill, timeAgo } from "../components/ui";
 
 export const metadata = { title: "Watchlist · Tech Stack Scout" };
 
@@ -102,8 +102,10 @@ async function Watchlist({ searchParams }) {
                   {(i?.infra_signals ?? []).slice(0, 3).map((s) => <Chip key={s.key}>{s.label}</Chip>)}
                 </div>
                 <div className="row-fit">
-                  {busy || i?.fit_score == null ? (
+                  {busy || !i?.last_refreshed ? (
                     <ResearchStatus status={c.research_status} />
+                  ) : i.fit_score == null ? (
+                    <NoScore />
                   ) : (
                     <>
                       <span className={`score-pill tier-${i.fit_tier}`}>{i.fit_score}</span>

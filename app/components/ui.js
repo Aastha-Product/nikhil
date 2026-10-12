@@ -237,3 +237,12 @@ export function Accordion({ id, title, meta, open = false, tone, children }) {
     </details>
   );
 }
+
+/** Shown instead of a fit score when there's no medium/high-confidence evidence to judge fit. */
+export function NoScore({ size = "small" }) {
+  return (
+    <span className={`no-score no-score-${size}`} title="We couldn't find enough reliable public evidence to judge fit. That isn't the same as a bad fit.">
+      Not enough evidence to score
+    </span>
+  );
+}
