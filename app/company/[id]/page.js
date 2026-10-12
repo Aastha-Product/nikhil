@@ -178,7 +178,7 @@ function OverviewTab({ c, i, ev, gaps, base }) {
         )}
         {!i.opener_verified && i.first_line && (
           <p className="line-source small warn-text">
-            {i.first_line_origin === "edited" ? "Edited by you, not checked against the evidence." : "Couldn’t confirm this line cites strong evidence."}
+            {["edited", "restored"].includes(i.first_line_origin) ? "This version doesn’t mention any verified finding — check it before sending." : "Couldn’t confirm this line cites strong evidence."}
           </p>
         )}
       </section>

@@ -117,3 +117,11 @@ test("citations resolve to real evidence IDs only", () => {
   const cited = citedEvidence(["e1", "E999", " E2 "], bundle);
   assert.deepEqual(cited.map((e) => e.ref), ["E1", "E2"]);
 });
+
+test("edited/restored lines are re-checked against strong evidence", async () => {
+  const { evidenceMentionedIn } = await import("../lib/evidence.js");
+  const hits = evidenceMentionedIn("Your Go services on Kubernetes could build faster.", ev);
+  assert.ok(hits.some((e) => e.signal_key === "kubernetes"));
+  assert.ok(hits.some((e) => e.signal_key === "Go"));
+  assert.equal(evidenceMentionedIn("Let's get going on a quick chat.", ev).length, 0);
+});

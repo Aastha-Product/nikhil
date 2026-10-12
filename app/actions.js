@@ -8,7 +8,7 @@ import { after } from "next/server";
 import { db } from "@/lib/supabaseAdmin";
 import { getProductProfile, refreshStale } from "@/lib/refresh";
 import { MODEL, rewriteOutput } from "@/lib/gemini";
-import { citedEvidence, toBundle, unsupportedClaims } from "@/lib/evidence";
+import { citedEvidence, evidenceMentionedIn, toBundle, unsupportedClaims } from "@/lib/evidence";
 
 const STATUSES = ["not_contacted", "contacted", "replied", "meeting", "won", "lost"];
 const MIN_REFRESH_GAP_MS = 10 * 60 * 1000; // stop the public "Refresh now" button from burning API quota
@@ -122,6 +122,21 @@ export async function setOutreachStatus(companyId, status) {
 
 const FIELD = { summary: "summary", first_line: "first_line" };
 
+/** Re-check an edited or restored opening line against the stored evidence. */
+async function reverifyLine(companyId, line) {
+  const [{ data: evidence }, product] = await Promise.all([
+    db().from("evidence").select("*").eq("company_id", companyId),
+    getProductProfile(),
+  ]);
+  const backed = evidenceMentionedIn(line, evidence ?? []);
+  const ok = backed.length > 0 && unsupportedClaims(line, evidence ?? [], product.pitch).length === 0;
+  return {
+    opener_verified: ok,
+    opener_reference: backed[0]?.claim ?? null,
+    opener_evidence: ok ? backed.map(({ claim, source_url, source_title, confidence }) => ({ claim, source_url, source_title, confidence })) : [],
+  };
+}
+
 async function saveOutput(companyId, type, content, origin, extra = {}) {
   const intelFields = { [FIELD[type]]: content, [`${type}_origin`]: origin, ...extra.intel };
   const { error } = await db().from("company_intel").update(intelFields).eq("company_id", companyId);
@@ -140,7 +155,7 @@ export async function saveEdit(companyId, type, content) {
   if (!UUID_RE.test(companyId) || !FIELD[type]) return { ok: false, error: "Invalid request" };
   const text = String(content ?? "").trim();
   if (text.length < 10 || text.length > 4000) return { ok: false, error: "The text must be between 10 and 4,000 characters." };
-  const intel = type === "first_line" ? { intel: { opener_verified: false, opener_reference: "Edited by you — not re-checked against evidence" } } : {};
+  const intel = type === "first_line" ? { intel: await reverifyLine(companyId, text) } : {};
   await saveOutput(companyId, type, text, "edited", intel);
   refresh();
   return { ok: true };
@@ -184,7 +199,8 @@ export async function restoreVersion(companyId, versionId) {
   if (!UUID_RE.test(companyId) || !Number.isInteger(Number(versionId))) return { ok: false, error: "Invalid request" };
   const { data: v } = await db().from("report_versions").select("*").eq("id", Number(versionId)).eq("company_id", companyId).maybeSingle();
   if (!v) return { ok: false, error: "Version not found" };
-  await saveOutput(companyId, v.output_type, v.content, "restored");
+  const intel = v.output_type === "first_line" ? { intel: await reverifyLine(companyId, v.content) } : {};
+  await saveOutput(companyId, v.output_type, v.content, "restored", intel);
   refresh();
   return { ok: true };
 }
