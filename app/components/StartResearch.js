@@ -4,7 +4,7 @@
 // (like a search box); picking one fills the website. Companies already on the watchlist are
 // offered first and open their existing report instead of starting a duplicate.
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useActionState, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addCompany } from "@/app/actions";
@@ -12,7 +12,6 @@ import { addCompany } from "@/app/actions";
 const favicon = (domain) => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
 
 export default function StartResearch() {
-  const [state, action, pending] = useActionState(addCompany, null);
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
   const [picked, setPicked] = useState(null); // suggestion the website came from
@@ -27,9 +26,22 @@ export default function StartResearch() {
   const timerRef = useRef(null);
   const websiteRef = useRef(null);
 
-  useEffect(() => {
-    if (state?.ok && state.id) router.push(`/company/${state.id}`);
-  }, [state, router]);
+  // Navigate once, right when research starts, and reset the form. Next.js keeps this page's state
+  // alive when you leave it, so a "go to the new company" flag left in state would fire again
+  // every time you came back to New research.
+  const [state, action, pending] = useActionState(async (prev, formData) => {
+    const res = await addCompany(prev, formData);
+    if (res?.ok && res.id) {
+      setName("");
+      setWebsite("");
+      setPicked(null);
+      setItems([]);
+      setMore(false);
+      router.push(`/company/${res.id}`);
+      return null;
+    }
+    return res;
+  }, null);
 
   // Debounced lookup as the name is typed.
   const onNameChange = (value) => {
@@ -185,8 +197,8 @@ export default function StartResearch() {
         <button type="button" className="btn-text subtle more-toggle" onClick={() => setMore(true)}>+ GitHub handle or job board (optional)</button>
       )}
 
-      <button type="submit" className="btn btn-lg btn-block btn-primary" disabled={pending || state?.ok}>
-        {pending || state?.ok ? <><span className="spinner light" aria-hidden /> Starting research…</> : "Start research →"}
+      <button type="submit" className="btn btn-lg btn-block btn-primary" disabled={pending}>
+        {pending ? <><span className="spinner light" aria-hidden /> Starting research…</> : "Start research →"}
       </button>
       {state?.error && (
         <p className="form-msg error" role="alert">
