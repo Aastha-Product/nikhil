@@ -223,6 +223,14 @@ or restores it. The sidebar link **Manage list** goes straight there. The same r
 
 ## Tests
 
+Latest results: **84/84 live QA checks, 15/15 unit tests**. See [docs/QA_REPORT.md](docs/QA_REPORT.md).
+
+```bash
+npm run qa
+```
+
+Runs the live QA suite against the deployment and database.
+
 ```bash
 npm test
 ```
