@@ -701,3 +701,9 @@ a.link-arrow:hover { transform: translateX(3px); }
 .next-steps { margin: 0; padding-left: 18px; display: grid; gap: 10px; color: var(--text-2); }
 .next-steps b { color: var(--text); }
 .profile-quote { margin: 0 0 12px; padding: 10px 14px; border-left: 3px solid var(--border-strong); background: var(--surface-2); border-radius: 0 10px 10px 0; color: var(--text-2); font-style: italic; }
+
+/* Phone top bar: keep swipe scrolling, hide the scrollbar */
+@media (max-width: 900px) {
+  .sidebar { scrollbar-width: none; -ms-overflow-style: none; }
+  .sidebar::-webkit-scrollbar { display: none; }
+}
