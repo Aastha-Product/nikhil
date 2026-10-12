@@ -478,3 +478,63 @@ a.link-arrow:hover { transform: translateX(3px); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ─────────────────────────── New research page ─────────────────────────── */
+.research { max-width: 640px; margin: 28px auto 0; }
+.research-head { text-align: center; margin-bottom: 26px; }
+.research-head h1 { font-size: 2.4rem; margin: 14px 0 8px; }
+.research-head p { font-size: 1.05rem; margin: 0 auto; max-width: 520px; }
+.research-card {
+  position: relative; isolation: isolate; background: var(--surface); border-radius: 22px; padding: 30px;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  box-shadow: 0 1px 2px rgba(23, 24, 26, 0.04), 0 24px 60px rgba(28, 92, 171, 0.12);
+}
+.research-card::before {
+  content: ""; position: absolute; inset: -1px; border-radius: 23px; padding: 1px; z-index: -1; pointer-events: none;
+  background: linear-gradient(135deg, var(--accent), #8fbcf3 45%, transparent 75%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.research-card .start-form { margin-top: 0; gap: 18px; }
+.more-toggle { justify-self: start; padding-left: 0; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 8px 20px rgba(42, 120, 214, 0.28); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-ink); border-color: var(--accent-ink); }
+.spinner.light { border-color: rgba(255, 255, 255, 0.35); border-top-color: #fff; }
+.autofill { color: var(--good); font-weight: 600; margin-left: 4px; }
+.input-filled { border-color: color-mix(in srgb, var(--good) 45%, var(--border-strong)); background: color-mix(in srgb, var(--good) 5%, var(--surface)); }
+
+/* Search-style combobox */
+.combo { position: relative; }
+.combo-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); display: grid; place-items: center; pointer-events: none; }
+.combo-icon img { border-radius: 5px; }
+.combo-input { padding-left: 44px; padding-right: 40px; }
+.combo-spinner { position: absolute; right: 14px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: spin 0.8s linear infinite; }
+.suggest {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 30; list-style: none; margin: 0; padding: 6px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 16px 40px rgba(23, 24, 26, 0.14);
+  animation: drop-in 160ms ease;
+}
+.suggest-item { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 10px; cursor: pointer; transition: background 120ms ease; }
+.suggest-item.active { background: var(--accent-soft); }
+.suggest-logo { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: #fff; padding: 2px; flex-shrink: 0; object-fit: contain; }
+.suggest-logo.initials { display: grid; place-items: center; font-weight: 700; color: var(--accent-ink); background: var(--accent-soft); padding: 0; }
+.suggest-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.suggest-name { font-weight: 550; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.suggest-name mark { background: none; color: var(--accent-ink); font-weight: 750; }
+.suggest-domain { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.suggest-badge { font-size: 0.72rem; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.suggest-item.active .suggest-badge { background: var(--surface); }
+.suggest-empty { padding: 10px; color: var(--muted); font-size: 0.86rem; }
+
+/* What happens next */
+.steps { list-style: none; padding: 0; margin: 24px 0 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.steps li { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--surface) 60%, transparent); border: 1px solid var(--border); }
+.steps li > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.steps b { font-size: 0.88rem; }
+.step-num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-weight: 700; font-size: 0.78rem; flex-shrink: 0; }
+
+@media (max-width: 600px) {
+  .research-head h1 { font-size: 1.8rem; }
+  .research-card { padding: 20px; }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .suggest-badge { display: none; }
+}

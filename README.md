@@ -21,11 +21,12 @@ a centered start screen, calm list rows, and tabbed company profiles.
 
 **Motion:** buttons, tabs, chips and sidebar items lift and turn blue on hover; cards get a highlighted border; dropdown arrows rotate and contents slide in. All motion is turned off for users who prefer reduced motion.
 
-**1. Start screen (`/`)** has two choices:
-- **Research a new company:** name and website (GitHub handle and job board are under "More
-  options"). Research starts immediately, and you land on the company's report, which updates by itself.
-- **Open my watchlist:** how many companies, how many are worth calling, and when it was last updated,
-  plus "Jump back in" links.
+**1. New research (`/`):** one focused card that asks only for what research needs.
+- **Company name** with search-style auto-suggest: as you type, matching companies appear with their logo and website, and the typed part is in bold. Picking one fills the website for you. Use ↑ ↓, Enter and Esc on the keyboard.
+  Suggestions come from your own watchlist first (shown as "On your watchlist", which opens the existing report instead of researching twice), then Clearbit's public company autocomplete, with Wikidata's official-website records as a backup. Adult sites are filtered out.
+- **Website:** filled in automatically, still editable.
+- **GitHub handle or job board:** optional, hidden until needed.
+- Below the card: three steps (Collect → Verify → Write).
 
 **2. Watchlist (`/watchlist`):** three numbers, filters (All · Worth calling · Nurture · Later), and one
 row per company (logo, name, top tools, fit score). The refresh log, outreach results and
@@ -112,6 +113,7 @@ evidence IDs, and code then checks it:
 | 5 | Code signals | GitHub REST API | Languages, tools, CI, activity, with repo URLs and dates |
 | 6 | Hiring signals | Greenhouse / Lever / Ashby | Roles and tools, with job URLs and dates |
 | 7 | Web discovery | Gemini + Google Search grounding | Blogs, talks, docs, with resolved page URLs |
+| 7b | Company auto-suggest | `/api/suggest` → watchlist, Clearbit autocomplete, Wikidata | Name → website suggestions on the New research form |
 | 8 | Evidence layer | `lib/evidence.js` (pure, unit-tested) | Evidence records, confidence, freshness, corroboration, gaps, output checks |
 | 9 | Fit scoring | `lib/score.js` (pure, unit-tested) | 0–100 score and tier for FlowForge |
 | 10 | AI writer | Gemini Flash (`@google/genai`) | Summary, opening line, talking points, rewrites; structured JSON |
@@ -211,7 +213,7 @@ Push to GitHub → Vercel **Add New → Project** → import → add the six env
 
 ## Managing the watchlist
 
-Start screen → **Research a new company** adds a company and researches it straight away. On the
+**New research** adds a company and researches it straight away. On the
 watchlist, the **Manage list** dropdown removes a company (the weekly refresh stops, history is kept)
 or restores it. The sidebar link **Manage list** goes straight there. The same records can be inspected in the Supabase Table Editor.
 
