@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import { getCompany } from "@/lib/data";
 import { isConfigured } from "@/lib/supabaseAdmin";
 import { techLabel } from "@/lib/tech";
-import { toBundle } from "@/lib/evidence";
+import { noScoreVerdict, toBundle } from "@/lib/evidence";
 import AutoRefresh from "@/app/components/AutoRefresh";
 import EditableOutput from "@/app/components/EditableOutput";
 import RefreshButton from "@/app/components/RefreshButton";
@@ -141,10 +141,105 @@ async function CompanyReport({ params, searchParams }) {
       ) : tab === "history" ? (
         <HistoryTab c={c} i={i} />
       ) : (
-        <OverviewTab c={c} i={i} ev={ev} gaps={gaps} base={base} />
+        i.fit_score == null && !busy ? <NoScoreOverview c={c} i={i} gaps={gaps} base={base} /> : <OverviewTab c={c} i={i} ev={ev} gaps={gaps} base={base} />
       )}
     </article>
   );
+}
+
+// ─────────────────────────── No score: explain why instead of an empty page ───────────────────────────
+
+function NoScoreOverview({ c, i, gaps, base }) {
+  const profile = i.web_mentions?.company_profile ?? null;
+  const verdict = noScoreVerdict(profile);
+  const gap = (area) => gaps.find((g) => g.area === area)?.detail;
+  const checks = [
+    ["Company GitHub with public code", (i.top_languages?.length ?? 0) > 0, gap("Public code") ?? "No company account with public code found."],
+    ["Engineering roles on public job boards", (i.hiring_signals?.total_eng_roles ?? 0) > 0, gap("Hiring") ?? "Checked Greenhouse, Lever and Ashby; no engineering roles found."],
+    ["Engineering blog posts or talks", (i.web_mentions?.findings?.length ?? 0) > 0, gap("Blogs & talks") ?? "None found via Google Search."],
+    ["Cloud or infrastructure tooling", (i.infra_signals?.length ?? 0) > 0, gap("Cloud") ?? "No public evidence."],
+  ];
+
+  return (
+    <div className="overview">
+      <section className={`card verdict-card verdict-${verdict.code}`}>
+        <div className="label">Why there’s no fit score</div>
+        <h2 className="verdict-title">{verdict.label}</h2>
+        <p className="verdict-reason">{verdict.reason}</p>
+        <p className="muted small">Confidence: low. Based only on what is publicly visible; we never give a score without engineering evidence.</p>
+      </section>
+
+      <div className="overview-grid">
+        <section className="card">
+          <h2>Who they are</h2>
+          {profile ? (
+            <>
+              <p className="profile-desc">{profile.description}</p>
+              <div className="chips">
+                {profile.industry && <Chip>{profile.industry}</Chip>}
+                {profile.headquarters && <Chip>HQ: {profile.headquarters}</Chip>}
+                {profile.founded && <Chip>Founded {profile.founded}</Chip>}
+                {profile.company_type && profile.company_type !== "unknown" && <Chip tone="accent">{TYPE_LABEL[profile.company_type]}</Chip>}
+              </div>
+              {profile.type_reason && <p className="muted small" style={{ marginTop: 10 }}>{profile.type_reason}</p>}
+              {profile.sources?.length > 0 && (
+                <p className="profile-sources small">
+                  Sources:{" "}
+                  {profile.sources.map((src, k) => (
+                    <a key={k} href={src.url} target="_blank" rel="noreferrer">{src.title}</a>
+                  ))}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="muted">We couldn’t verify what this company does from public sources.</p>
+          )}
+        </section>
+
+        <aside className="card">
+          <h2>What we checked</h2>
+          <ul className="checklist">
+            {checks.map(([label, ok, detail]) => (
+              <li key={label} className={ok ? "ok" : "no"}>
+                <span className="check-icon" aria-hidden>{ok ? "✓" : "✕"}</span>
+                <span>
+                  <b>{label}</b>
+                  {!ok && <span className="muted small">{detail}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <Link href={`${base}?tab=evidence&open=gaps#gaps`} className="small link-arrow">All research gaps →</Link>
+        </aside>
+      </div>
+
+      <section className="card">
+        <h2>What to do next</h2>
+        <ul className="next-steps">
+          {verdict.code === "outside_icp" && (
+            <li>
+              <b>Deprioritize it.</b> <span className="muted">It doesn’t look like a team FlowForge serves.</span>{" "}
+              {c.active && <RemoveButton companyId={c.id} name={c.name} redirectHome />}
+            </li>
+          )}
+          <li>
+            <b>Know their GitHub or careers page?</b>{" "}
+            <span className="muted">Add the GitHub handle or job board to this company in Supabase (companies table), then click Refresh now.</span>
+          </li>
+          <li>
+            <b>Check manually before calling.</b>{" "}
+            <span className="muted">Look at their engineering headcount and job titles on LinkedIn. We don’t scrape LinkedIn.</span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+const TYPE_LABEL = { software: "Software company", tech_enabled: "Tech-enabled company", non_software: "Non-software company" };
+
+function VerdictPill({ verdict }) {
+  return <span className={`verdict-pill verdict-${verdict.code}`}>{verdict.label}</span>;
 }
 
 // ─────────────────────────── Overview: the 10% Nikhil needs before a call ───────────────────────────
@@ -313,11 +408,11 @@ function ScoreTab({ i, history }) {
       <section className="card">
         <div className="score-hero">
           <NoScore size="large" />
+          <VerdictPill verdict={noScoreVerdict(i.web_mentions?.company_profile)} />
         </div>
         <p className="muted">
           We found no medium- or high-confidence public evidence about how this company builds software, so we don’t give it a fit score.
-          Missing evidence isn’t the same as a bad fit. Check the <b>Evidence</b> tab for what we couldn’t verify; adding the company’s
-          GitHub handle or job board and refreshing usually fixes this.
+          {" "}{noScoreVerdict(i.web_mentions?.company_profile).reason} Missing evidence alone isn’t the same as a bad fit.
         </p>
       </section>
     );

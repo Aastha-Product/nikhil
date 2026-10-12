@@ -105,7 +105,9 @@ async function Watchlist({ searchParams }) {
                   {busy || !i?.last_refreshed ? (
                     <ResearchStatus status={c.research_status} />
                   ) : i.fit_score == null ? (
-                    <NoScore />
+                    i.web_mentions?.company_profile?.company_type === "non_software"
+                      ? <span className="verdict-pill verdict-outside_icp" title="Non-software company with no visible engineering">Likely not a fit</span>
+                      : <NoScore />
                   ) : (
                     <>
                       <span className={`score-pill tier-${i.fit_tier}`}>{i.fit_score}</span>

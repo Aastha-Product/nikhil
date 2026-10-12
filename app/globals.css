@@ -679,3 +679,24 @@ a.link-arrow:hover { transform: translateX(3px); }
   .research-card { animation: none; }
   .ripple, .nav-progress { display: none; }
 }
+
+/* ─────────────────────────── No-score explanation ─────────────────────────── */
+.verdict-card { border-left: 4px solid var(--border-strong); }
+.verdict-card.verdict-outside_icp { border-left-color: var(--amber); background: linear-gradient(90deg, var(--amber-soft), var(--surface) 60%); }
+.verdict-card.verdict-unknown_tech { border-left-color: var(--brand-2); background: linear-gradient(90deg, var(--blue-soft), var(--surface) 60%); }
+.verdict-title { font-size: 1.3rem; margin: 2px 0 8px; }
+.verdict-reason { color: var(--text-2); margin-bottom: 6px; }
+.verdict-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 650; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+.verdict-pill.verdict-outside_icp { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+.verdict-pill.verdict-unknown_tech { background: var(--blue-soft); color: var(--brand-2); border-color: transparent; }
+.score-hero .verdict-pill { margin-left: 4px; }
+.profile-desc { font-size: 1.02rem; color: var(--text); }
+.profile-sources { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); }
+.checklist { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 12px; }
+.checklist li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; }
+.checklist li > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.check-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; font-weight: 800; }
+.checklist li.ok .check-icon { background: var(--mint-soft); color: var(--mint); }
+.checklist li.no .check-icon { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+.next-steps { margin: 0; padding-left: 18px; display: grid; gap: 10px; color: var(--text-2); }
+.next-steps b { color: var(--text); }

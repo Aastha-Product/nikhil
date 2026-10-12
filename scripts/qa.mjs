@@ -101,6 +101,13 @@ const dd = JSON.parse((await get("/api/suggest?q=datad")).text).items;
 check("Edge cases", "Suggest flags companies already on the watchlist", dd[0]?.existingId, dd[0] ? `${dd[0].name} → existing` : "none");
 const sparse = researched.filter((c) => one(c.company_intel).fit_score == null);
 check("Edge cases", "Sparse-evidence company shown as 'not enough evidence', not a low score", sparse.length === 0 || /Not enough evidence to score/.test((await get(`/company/${sparse[0].id}?tab=score`)).text), sparse.map((c) => c.name).join(", ") || "none on list");
+for (const c of sparse) {
+  const p = one(c.company_intel).web_mentions?.company_profile;
+  const page = (await get(`/company/${c.id}`)).text;
+  check("Edge cases", `${c.name}: no-score page explains why (verdict, who they are, what we checked)`,
+    /Why there’s no fit score/.test(page) && /What we checked/.test(page) && (!p || p.sources?.length > 0),
+    p ? `${p.company_type} · ${p.sources?.length ?? 0} source(s) via ${p.via}` : "no profile found (shown as unknown)");
+}
 const gapped = researched.filter((c) => (one(c.company_intel).research_gaps ?? []).length);
 check("Edge cases", "Research gaps recorded instead of guesses", gapped.length > 0, `${gapped.length} companies list gaps`);
 check("Edge cases", "No company stuck in queued/researching", !active.some((c) => ["queued", "researching"].includes(c.research_status)), active.map((c) => `${c.name}:${c.research_status}`).join(" "));

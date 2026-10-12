@@ -125,3 +125,13 @@ test("edited/restored lines are re-checked against strong evidence", async () =>
   assert.ok(hits.some((e) => e.signal_key === "Go"));
   assert.equal(evidenceMentionedIn("Let's get going on a quick chat.", ev).length, 0);
 });
+
+test("no-score verdict: outside target customers only for non-software companies", async () => {
+  const { noScoreVerdict } = await import("../lib/evidence.js");
+  assert.equal(noScoreVerdict({ company_type: "non_software", industry: "Consumer electronics" }).code, "outside_icp");
+  assert.match(noScoreVerdict({ company_type: "non_software", industry: "Consumer electronics" }).reason, /consumer electronics company/);
+  assert.equal(noScoreVerdict({ company_type: "software" }).code, "unknown_tech");
+  assert.equal(noScoreVerdict({ company_type: "tech_enabled" }).code, "unknown_tech");
+  assert.equal(noScoreVerdict({ company_type: "unknown" }).code, "unknown");
+  assert.equal(noScoreVerdict(null).code, "unknown");
+});
