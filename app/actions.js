@@ -41,7 +41,7 @@ export async function addCompany(_prev, formData) {
 
   const normalized = normalize(name);
   const { data: existing } = await db().from("companies").select("id, active, name").eq("normalized_name", normalized).maybeSingle();
-  if (existing?.active) return { ok: false, error: `${existing.name} is already on the watchlist.` };
+  if (existing?.active) return { ok: false, existingId: existing.id, error: `${existing.name} is already on your watchlist.` };
 
   const { count } = await db().from("companies").select("id", { count: "exact", head: true }).eq("active", true);
   if ((count ?? 0) >= MAX_ACTIVE) return { ok: false, error: `The watchlist is limited to ${MAX_ACTIVE} active companies.` };
@@ -64,7 +64,7 @@ export async function addCompany(_prev, formData) {
   // Research starts right away, after the response is sent (§7 step 1 → "Queued").
   after(() => refreshStale({ companyId: saved.id, trigger: "added" }).catch(() => {}));
   refresh();
-  return { ok: true, message: `${name} added. Research is running and takes about a minute.` };
+  return { ok: true, id: saved.id, message: `${name} added. Research is running and takes about a minute.` };
 }
 
 export async function removeCompany(companyId) {

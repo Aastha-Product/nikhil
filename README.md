@@ -11,22 +11,31 @@ edits change wording, never evidence · everything works in the deployed app wit
 
 ## What Nikhil sees
 
-**Dashboard:** accounts worth calling this week, KPI tiles, the watchlist with fit score and research
-status, **Add company / Remove / Restore** (stored in Supabase), the automatic refresh log, and outreach
-results by tier.
+The interface shows the essentials first and keeps everything else one click away, so a rep isn't
+faced with every feature at once. The layout follows common AI-assistant and CRM patterns on Dribbble:
+a centered start screen, calm list rows, and tabbed company profiles.
 
-**Company report (§8):**
+**1. Start screen (`/`)** has two choices:
+- **Research a new company:** name and website (GitHub handle and job board are under "More
+  options"). Research starts immediately, and you land on the company's report, which updates by itself.
+- **Open my watchlist:** how many companies, how many are worth calling, and when it was last updated,
+  plus "Jump back in" links.
 
-| Section | What it shows |
+**2. Watchlist (`/watchlist`):** three numbers, filters (All · Worth calling · Nurture · Later), and one
+row per company (logo, name, top tools, fit score). The refresh log, outreach results and
+remove/restore are under **More details**.
+
+**3. Company report (`/company/[id]`)** has four tabs:
+
+| Tab | What it shows |
 |---|---|
-| Header | Name, website, GitHub, research status (Queued · Researching · Ready · Partial · Failed), last successful refresh |
-| Quick tech-stack snapshot | Languages, cloud & infrastructure, engineering activity, each with confidence and a link to its evidence |
-| Engineering context summary | Exactly two paragraphs by Gemini Flash; `E7`-style citations link to the evidence rows |
-| Suggested opening line | One sentence anchored to a high/medium-confidence finding, with that source. **Never sent automatically** |
-| Fit for FlowForge | 0–100 score computed in code, with the evidence behind each point |
-| Evidence & sources | Every finding: claim, source link, source type and tier, source and observed dates, status, confidence, freshness, caveat |
-| Research gaps | What couldn't be verified, and which sources were missing or failed |
-| Edit · Regenerate · Regenerate with feedback · Version history | Rewrites wording from the **same** evidence; restore any earlier version (§9) |
+| **Overview** (default) | Your opening line with the source it's based on and a Copy button · "What to know" (two paragraphs; `E7` citations link to the evidence) · 3 questions for the call (collapsed) · tech stack at a glance · one line about what couldn't be verified |
+| **Evidence** | Every finding with source link, type and tier, published/checked dates, status, confidence, freshness, caveat · research gaps |
+| **Fit score** | 0–100 for FlowForge with the evidence behind each point |
+| **History** | What changed since last week · every version of the summary and opening line, with restore · remove from watchlist |
+
+**Improve** (on the summary and the opening line) reveals: Rewrite · Rewrite with my note · Edit myself.
+It changes the wording only, never the evidence (§9). Nothing is ever sent to the company.
 
 ## Research methodology
 
@@ -64,7 +73,7 @@ evidence IDs, and code then checks it:
 
 ```
                 ┌──────────────────────────────── VERCEL ─────────────────────────────────┐
- Nikhil ───────►│ Next.js UI: dashboard (/) · company report (/company/[id])               │
+ Nikhil ───────►│ Next.js UI: start (/) · watchlist · report (/company/[id])             │
                 │   server actions: add / remove / restore company, refresh now,           │
                 │   edit · regenerate · feedback · restore version, outreach status         │
                 │                                                                          │
@@ -196,11 +205,9 @@ Push to GitHub → Vercel **Add New → Project** → import → add the six env
 
 ## Managing the watchlist
 
-Use **+ Add company** on the dashboard: enter a name and, ideally, the website. A GitHub handle and job
-board are optional; the app finds them where it can. Research starts immediately and the page updates
-when it's done. **Remove** takes a company off the weekly refresh but keeps its history, and
-**Removed companies → Restore** brings it back. The same records can be inspected or edited in the
-Supabase Table Editor.
+Start screen → **Research a new company** adds a company and researches it straight away. On the
+watchlist, **More details → Manage list** removes a company (the weekly refresh stops, history is kept)
+or restores it. The same records can be inspected in the Supabase Table Editor.
 
 ## Tests
 

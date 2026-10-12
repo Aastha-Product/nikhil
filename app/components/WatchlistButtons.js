@@ -19,7 +19,7 @@ export function RemoveButton({ companyId, name, redirectHome = false }) {
           startTransition(async () => {
             const res = await removeCompany(companyId);
             if (!res.ok) setError(res.error);
-            else if (redirectHome) router.push("/");
+            else if (redirectHome) router.push("/watchlist");
           });
         }}
       >

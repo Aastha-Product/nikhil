@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Tech Stack Scout",
-  description: "Live engineering intelligence and fit scores for FlowForge's target accounts.",
+  description: "Know how a company builds software before your first sales call, with every finding linked to its source.",
 };
 
 export default function RootLayout({ children }) {
@@ -25,21 +25,19 @@ export default function RootLayout({ children }) {
           <div className="topbar-inner">
             <Link href="/" className="brand">
               <span className="brand-mark" aria-hidden>
-                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3L18.8 8 12 11.7 5.2 8 12 4.3ZM5 9.7l6 3.3v6.7l-6-3.3V9.7Zm8 10V13l6-3.3v6.7l-6 3.3Z" fill="currentColor" /></svg>
+                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3L18.8 8 12 11.7 5.2 8 12 4.3ZM5 9.7l6 3.3v6.7l-6-3.3V9.7Zm8 10V13l6-3.3v6.7l-6 3.3Z" fill="currentColor" /></svg>
               </span>
-              <span>
-                Tech Stack Scout
-                <small>for FlowForge sales</small>
-              </span>
+              Tech Stack Scout
             </Link>
-            <span className="powered">
-              <span className="live-dot" aria-hidden /> Live data · AI by Gemini Flash
-            </span>
+            <nav className="nav">
+              <Link href="/">New research</Link>
+              <Link href="/watchlist">Watchlist</Link>
+            </nav>
           </div>
         </header>
         <main className="container">{children}</main>
         <footer className="footer">
-          Sources: GitHub REST API · Greenhouse / Lever / Ashby job boards · Google Search via Gemini. Scores are computed in code; Gemini only writes the text.
+          Public sources only: GitHub, official job boards, and engineering articles found with Google Search. Scores are computed in code; Gemini Flash only writes the text.
         </footer>
       </body>
     </html>

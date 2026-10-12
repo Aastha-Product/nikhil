@@ -1,6 +1,6 @@
 // Presentational helpers shared by the pages (server components).
 
-export const TIER_TEXT = { A: "Call this week", B: "Nurture", C: "Deprioritize" };
+export const TIER_TEXT = { A: "Worth calling", B: "Nurture", C: "Later" };
 
 export function TierPill({ tier }) {
   if (!tier) return <span className="tier-pill tier-none">Not scored</span>;
