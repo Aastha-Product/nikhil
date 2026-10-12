@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tech Stack Scout — Components Map</title>
+<style>
+  @page { size: 1800px 1130px; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  svg { display: block; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .t-title { font-size: 34px; font-weight: 700; fill: #17181a; letter-spacing: -0.5px; }
+  .t-sub { font-size: 17px; fill: #6c6f76; }
+  .t-h { font-size: 19px; font-weight: 700; fill: #17181a; }
+  .t-cap { font-size: 13px; font-weight: 700; letter-spacing: 1.4px; fill: #6c6f76; }
+  .t-b { font-size: 14.5px; fill: #3d4047; }
+  .t-s { font-size: 13px; fill: #6c6f76; }
+  .t-step { font-size: 15px; font-weight: 700; fill: #17181a; }
+  .t-lbl { font-size: 12.5px; font-weight: 600; }
+  .box { fill: #ffffff; stroke: #e2ded6; stroke-width: 1.5; }
+</style>
+</head>
+<body>
+<svg width="1800" height="1130" viewBox="0 0 1800 1130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Components map of Tech Stack Scout">
+  <defs>
+    <marker id="a-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a78d6"/></marker>
+    <marker id="a-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#e0662f"/></marker>
+    <marker id="a-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#17955f"/></marker>
+    <marker id="a-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6c6f76"/></marker>
+    <filter id="sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#17181a" flood-opacity="0.07"/></filter>
+  </defs>
+
+  <rect width="1800" height="1130" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="40" y="58" class="t-title">Tech Stack Scout — Components Map</text>
+  <text x="40" y="88" class="t-sub">Live engineering intelligence for FlowForge’s account executive · Next.js on Vercel · Supabase · Gemini Flash · public APIs</text>
+
+  <!-- ───────── Actors ───────── -->
+  <text x="40" y="140" class="t-cap">WHO / WHAT STARTS IT</text>
+  <g filter="url(#sh)">
+    <rect x="40" y="155" width="250" height="118" rx="14" class="box" style="stroke:#2a78d6"/>
+  </g>
+  <text x="62" y="190" class="t-h">Nikhil (AE)</text>
+  <text x="62" y="215" class="t-b">Opens the public Vercel URL</text>
+  <text x="62" y="236" class="t-b">Researches companies, reads</text>
+  <text x="62" y="256" class="t-b">reports, copies opening lines</text>
+
+  <g filter="url(#sh)">
+    <rect x="40" y="430" width="250" height="118" rx="14" class="box" style="stroke:#e0662f"/>
+  </g>
+  <text x="62" y="465" class="t-h">Vercel Cron</text>
+  <text x="62" y="490" class="t-b">Daily 03:00 UTC</text>
+  <text x="62" y="511" class="t-b">Refreshes companies older</text>
+  <text x="62" y="531" class="t-b">than 6 days → weekly per account</text>
+
+  <!-- ───────── Vercel container ───────── -->
+  <rect x="330" y="118" width="910" height="574" rx="20" fill="#f4f8fe" stroke="#b9d3f3" stroke-width="1.5"/>
+  <text x="352" y="146" class="t-cap" style="fill:#1c5cab">VERCEL · NEXT.JS 16 APP ROUTER (SERVER-SIDE SECRETS ONLY)</text>
+
+  <!-- UI -->
+  <g filter="url(#sh)"><rect x="352" y="160" width="420" height="178" rx="14" class="box"/></g>
+  <text x="374" y="192" class="t-h">Dashboard UI</text>
+  <text x="374" y="218" class="t-b">• New research with company auto-suggest</text>
+  <text x="374" y="241" class="t-b">• Watchlist: fit views, insights dropdowns</text>
+  <text x="374" y="264" class="t-b">• Company report: Overview · Evidence ·</text>
+  <text x="388" y="285" class="t-b">Fit score · History</text>
+  <text x="374" y="308" class="t-b">• Left sidebar navigation, live status</text>
+  <text x="374" y="328" class="t-s">app/page.js · app/watchlist · app/company/[id]</text>
+
+  <!-- Server actions -->
+  <g filter="url(#sh)"><rect x="800" y="160" width="420" height="178" rx="14" class="box"/></g>
+  <text x="822" y="192" class="t-h">Server actions</text>
+  <text x="822" y="218" class="t-b">• Add / remove / restore company (validated)</text>
+  <text x="822" y="241" class="t-b">• Refresh now (10-min cooldown)</text>
+  <text x="822" y="264" class="t-b">• Edit · Rewrite · Rewrite with note ·</text>
+  <text x="836" y="285" class="t-b">Restore version (never edits evidence)</text>
+  <text x="822" y="308" class="t-b">• Outreach status</text>
+  <text x="822" y="328" class="t-s">app/actions.js · research starts via after()</text>
+
+  <!-- API routes -->
+  <g filter="url(#sh)"><rect x="352" y="366" width="420" height="104" rx="14" class="box"/></g>
+  <text x="374" y="396" class="t-h">API routes</text>
+  <text x="374" y="421" class="t-b">/api/refresh · CRON_SECRET, batched, 150 s budget</text>
+  <text x="374" y="443" class="t-b">/api/suggest · company name → website</text>
+  <text x="374" y="462" class="t-s">/api/companies · read-only JSON</text>
+
+  <!-- Read layer -->
+  <g filter="url(#sh)"><rect x="800" y="366" width="420" height="104" rx="14" class="box"/></g>
+  <text x="822" y="396" class="t-h">Read layer</text>
+  <text x="822" y="421" class="t-b">lib/data.js: watchlist, report, evidence,</text>
+  <text x="822" y="443" class="t-b">versions, refresh runs, metrics</text>
+  <text x="822" y="462" class="t-s">lib/supabaseAdmin.js · secret key, server only</text>
+
+  <!-- Pipeline -->
+  <g filter="url(#sh)"><rect x="352" y="498" width="868" height="174" rx="14" class="box" style="stroke:#2a78d6;stroke-width:2"/></g>
+  <text x="374" y="530" class="t-h">Research pipeline — per company (lib/refresh.js)</text>
+  <g>
+    <rect x="374" y="548" width="130" height="102" rx="12" fill="#eef4fd"/>
+    <text x="388" y="574" class="t-step">1 Collect</text>
+    <text x="388" y="597" class="t-s">GitHub, job</text>
+    <text x="388" y="615" class="t-s">boards, web</text>
+    <text x="388" y="633" class="t-s">in parallel</text>
+
+    <rect x="516" y="548" width="130" height="102" rx="12" fill="#eef4fd"/>
+    <text x="530" y="574" class="t-step">2 Verify</text>
+    <text x="530" y="597" class="t-s">Evidence records,</text>
+    <text x="530" y="615" class="t-s">tiers, confidence,</text>
+    <text x="530" y="633" class="t-s">freshness, gaps</text>
+
+    <rect x="658" y="548" width="130" height="102" rx="12" fill="#eef4fd"/>
+    <text x="672" y="574" class="t-step">3 Score</text>
+    <text x="672" y="597" class="t-s">Fit 0–100 in code;</text>
+    <text x="672" y="615" class="t-s">no strong evidence</text>
+    <text x="672" y="633" class="t-s">= not scored</text>
+
+    <rect x="800" y="548" width="130" height="102" rx="12" fill="#eef4fd"/>
+    <text x="814" y="574" class="t-step">4 Write</text>
+    <text x="814" y="597" class="t-s">Gemini Flash: 2</text>
+    <text x="814" y="615" class="t-s">paragraphs + line,</text>
+    <text x="814" y="633" class="t-s">cites evidence IDs</text>
+
+    <rect x="942" y="548" width="130" height="102" rx="12" fill="#eef4fd"/>
+    <text x="956" y="574" class="t-step">5 Check</text>
+    <text x="956" y="597" class="t-s">Line cites strong</text>
+    <text x="956" y="615" class="t-s">evidence; no</text>
+    <text x="956" y="633" class="t-s">unsupported tools</text>
+
+    <rect x="1084" y="548" width="120" height="102" rx="12" fill="#e9f7f0"/>
+    <text x="1098" y="574" class="t-step">6 Save</text>
+    <text x="1098" y="597" class="t-s">Keep last good</text>
+    <text x="1098" y="615" class="t-s">data if a source</text>
+    <text x="1098" y="633" class="t-s">fails; log run</text>
+  </g>
+  <g stroke="#2a78d6" stroke-width="2" fill="none">
+    <path d="M504 599 H516" marker-end="url(#a-blue)"/>
+    <path d="M646 599 H658" marker-end="url(#a-blue)"/>
+    <path d="M788 599 H800" marker-end="url(#a-blue)"/>
+    <path d="M930 599 H942" marker-end="url(#a-blue)"/>
+    <path d="M1072 599 H1084" marker-end="url(#a-blue)"/>
+  </g>
+
+  <!-- ───────── External services ───────── -->
+  <text x="1300" y="140" class="t-cap">LIVE PUBLIC SOURCES (NO SCRAPING)</text>
+  <g filter="url(#sh)"><rect x="1300" y="155" width="460" height="100" rx="14" class="box"/></g>
+  <text x="1322" y="187" class="t-h">GitHub REST API</text>
+  <text x="1322" y="212" class="t-b">Repos, languages, topics, CI workflows,</text>
+  <text x="1322" y="233" class="t-b">push activity · token, 5,000 req/h · Tier 1</text>
+
+  <g filter="url(#sh)"><rect x="1300" y="272" width="460" height="100" rx="14" class="box"/></g>
+  <text x="1322" y="304" class="t-h">Greenhouse · Lever · Ashby</text>
+  <text x="1322" y="329" class="t-b">Official job posts: engineering roles and the</text>
+  <text x="1322" y="350" class="t-b">tools they list · public APIs, no key · Tier 1</text>
+
+  <g filter="url(#sh)"><rect x="1300" y="389" width="460" height="124" rx="14" class="box" style="stroke:#8c6be0"/></g>
+  <text x="1322" y="421" class="t-h">Gemini Flash (@google/genai)</text>
+  <text x="1322" y="446" class="t-b">Google Search grounding: blogs, talks, docs</text>
+  <text x="1322" y="467" class="t-b">with real source URLs · structured JSON for</text>
+  <text x="1322" y="488" class="t-b">summary, opening line, rewrites</text>
+  <text x="1322" y="505" class="t-s">The only AI in the system · no Claude API</text>
+
+  <g filter="url(#sh)"><rect x="1300" y="572" width="460" height="100" rx="14" class="box"/></g>
+  <text x="1322" y="604" class="t-h">Clearbit autocomplete · Wikidata</text>
+  <text x="1322" y="629" class="t-b">Company name → website suggestions</text>
+  <text x="1322" y="650" class="t-b">(Wikidata official website as fallback)</text>
+
+  <!-- ───────── Supabase ───────── -->
+  <rect x="330" y="740" width="1430" height="244" rx="20" fill="#f1faf5" stroke="#9fdcbf" stroke-width="1.5"/>
+  <text x="352" y="770" class="t-cap" style="fill:#17955f">SUPABASE · POSTGRES · ROW-LEVEL SECURITY ON · ACCESSED ONLY FROM THE SERVER</text>
+  <g font-size="14">
+    <g filter="url(#sh)"><rect x="352" y="788" width="190" height="176" rx="12" class="box"/></g>
+    <text x="368" y="818" class="t-h" style="font-size:16px">companies</text>
+    <text x="368" y="842" class="t-s">Watchlist: name,</text>
+    <text x="368" y="860" class="t-s">website, GitHub, job</text>
+    <text x="368" y="878" class="t-s">board, active,</text>
+    <text x="368" y="896" class="t-s">research status,</text>
+    <text x="368" y="914" class="t-s">outreach status</text>
+
+    <g filter="url(#sh)"><rect x="554" y="788" width="190" height="176" rx="12" class="box" style="stroke:#17955f;stroke-width:2"/></g>
+    <text x="570" y="818" class="t-h" style="font-size:16px">evidence</text>
+    <text x="570" y="842" class="t-s">One row per finding:</text>
+    <text x="570" y="860" class="t-s">claim, source URL,</text>
+    <text x="570" y="878" class="t-s">type, tier, dates,</text>
+    <text x="570" y="896" class="t-s">status, confidence,</text>
+    <text x="570" y="914" class="t-s">freshness, caveat</text>
+
+    <g filter="url(#sh)"><rect x="756" y="788" width="190" height="176" rx="12" class="box"/></g>
+    <text x="772" y="818" class="t-h" style="font-size:16px">company_intel</text>
+    <text x="772" y="842" class="t-s">Latest profile and</text>
+    <text x="772" y="860" class="t-s">report: summary,</text>
+    <text x="772" y="878" class="t-s">opening line, cited</text>
+    <text x="772" y="896" class="t-s">evidence, gaps, fit,</text>
+    <text x="772" y="914" class="t-s">last good refresh</text>
+
+    <g filter="url(#sh)"><rect x="958" y="788" width="190" height="176" rx="12" class="box"/></g>
+    <text x="974" y="818" class="t-h" style="font-size:16px">report_versions</text>
+    <text x="974" y="842" class="t-s">Every generated,</text>
+    <text x="974" y="860" class="t-s">rewritten, edited</text>
+    <text x="974" y="878" class="t-s">and restored</text>
+    <text x="974" y="896" class="t-s">summary / line</text>
+
+    <g filter="url(#sh)"><rect x="1160" y="788" width="190" height="176" rx="12" class="box"/></g>
+    <text x="1176" y="818" class="t-h" style="font-size:16px">refresh_runs</text>
+    <text x="1176" y="842" class="t-s">Job log: trigger,</text>
+    <text x="1176" y="860" class="t-s">status, attempted /</text>
+    <text x="1176" y="878" class="t-s">succeeded / failed /</text>
+    <text x="1176" y="896" class="t-s">deferred, errors</text>
+
+    <g filter="url(#sh)"><rect x="1362" y="788" width="190" height="176" rx="12" class="box"/></g>
+    <text x="1378" y="818" class="t-h" style="font-size:16px">intel_history</text>
+    <text x="1378" y="842" class="t-s">Weekly snapshots</text>
+    <text x="1378" y="860" class="t-s">for "what changed</text>
+    <text x="1378" y="878" class="t-s">since last week"</text>
+
+    <g filter="url(#sh)"><rect x="1564" y="788" width="176" height="176" rx="12" class="box"/></g>
+    <text x="1580" y="818" class="t-h" style="font-size:16px">product_profile</text>
+    <text x="1580" y="842" class="t-s">FlowForge targets:</text>
+    <text x="1580" y="860" class="t-s">languages, clouds,</text>
+    <text x="1580" y="878" class="t-s">runtimes, roles —</text>
+    <text x="1580" y="896" class="t-s">drives the score</text>
+  </g>
+
+  <!-- ───────── Arrows ───────── -->
+  <!-- Nikhil → UI -->
+  <path d="M290 214 H352" stroke="#2a78d6" stroke-width="2.5" fill="none" marker-end="url(#a-blue)"/>
+  <!-- UI → server actions -->
+  <path d="M772 249 H800" stroke="#2a78d6" stroke-width="2.5" fill="none" marker-end="url(#a-blue)"/>
+  <!-- UI typing → /api/suggest -->
+  <path d="M562 338 V366" stroke="#2a78d6" stroke-width="2.5" fill="none" marker-end="url(#a-blue)"/>
+  <!-- server actions → pipeline (after) -->
+  <path d="M1190 338 V352 H1232 V585 H1220" stroke="#2a78d6" stroke-width="2.5" fill="none" marker-end="url(#a-blue)"/>
+  <text x="1170" y="364" class="t-lbl" style="fill:#2a78d6" text-anchor="end">after()</text>
+  <!-- Cron → /api/refresh -->
+  <path d="M290 489 H316 V430 H352" stroke="#e0662f" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#a-orange)"/>
+  <!-- /api/refresh → pipeline -->
+  <path d="M440 470 V498" stroke="#e0662f" stroke-width="2.5" stroke-dasharray="7 5" fill="none" marker-end="url(#a-orange)"/>
+  <!-- pipeline collect/write → external bus -->
+  <path d="M1220 535 H1270 V205 H1300" stroke="#6c6f76" stroke-width="2" fill="none" marker-end="url(#a-gray)"/>
+  <path d="M1270 322 H1300" stroke="#6c6f76" stroke-width="2" fill="none" marker-end="url(#a-gray)"/>
+  <path d="M1270 451 H1300" stroke="#6c6f76" stroke-width="2" fill="none" marker-end="url(#a-gray)"/>
+  <!-- /api/suggest → Clearbit/Wikidata -->
+  <path d="M772 440 H786 V484 H1250 V622 H1300" stroke="#6c6f76" stroke-width="2" stroke-dasharray="4 4" fill="none" marker-end="url(#a-gray)"/>
+  <!-- pipeline save → Supabase -->
+  <path d="M1144 672 V788" stroke="#17955f" stroke-width="2.5" fill="none" marker-end="url(#a-green)"/>
+  <text x="1154" y="716" class="t-lbl" style="fill:#17955f">writes evidence, report,</text>
+  <text x="1154" y="733" class="t-lbl" style="fill:#17955f">versions, run log</text>
+  <!-- app ↔ Supabase: pages read through lib/data.js, server actions write the watchlist -->
+  <path d="M352 300 H342 V788" stroke="#17955f" stroke-width="2.5" fill="none" marker-start="url(#a-green)" marker-end="url(#a-green)"/>
+  <text x="356" y="716" class="t-lbl" style="fill:#17955f">pages read via lib/data.js · server actions write the watchlist</text>
+
+  <!-- ───────── Legend & rules ───────── -->
+  <g transform="translate(40 1012)">
+    <text x="0" y="0" class="t-cap">LEGEND</text>
+    <path d="M0 26 H46" stroke="#2a78d6" stroke-width="2.5" marker-end="url(#a-blue)"/><text x="56" y="31" class="t-b">User flow</text>
+    <path d="M150 26 H196" stroke="#e0662f" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#a-orange)"/><text x="206" y="31" class="t-b">Scheduled weekly refresh</text>
+    <path d="M410 26 H456" stroke="#6c6f76" stroke-width="2" marker-end="url(#a-gray)"/><text x="466" y="31" class="t-b">Call to a live public source</text>
+    <path d="M680 26 H726" stroke="#17955f" stroke-width="2.5" marker-end="url(#a-green)"/><text x="736" y="31" class="t-b">Database read / write</text>
+  </g>
+  <g transform="translate(40 1070)">
+    <text x="0" y="0" class="t-b"><tspan font-weight="700" fill="#17181a">Rules: </tspan>facts come from live APIs · confidence, freshness and the fit score are computed in code · Gemini Flash only writes text from cited evidence ·</text>
+    <text x="0" y="24" class="t-b">unknowns are shown as research gaps, never guessed · a failed source never erases the last good research · nothing is ever sent to the prospect.</text>
+  </g>
+</svg>
+</body>
+</html>

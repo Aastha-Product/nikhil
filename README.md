@@ -78,6 +78,10 @@ evidence IDs, and code then checks it:
 
 ## Components Map
 
+![Tech Stack Scout components map](docs/components-map.png)
+
+Also available as [PDF](docs/components-map.pdf) and [editable HTML](docs/components-map.html). Text version below.
+
 ```
                 ┌──────────────────────────────── VERCEL ─────────────────────────────────┐
  Nikhil ───────►│ Next.js UI: start (/) · watchlist · report (/company/[id])             │
