@@ -174,7 +174,14 @@ function NoScoreOverview({ c, i, gaps, base }) {
           <h2>Who they are</h2>
           {profile ? (
             <>
-              <p className="profile-desc">{profile.description}</p>
+              {profile.via === "company_website" ? (
+                <>
+                  <div className="label">In their own words (from their website)</div>
+                  <blockquote className="profile-quote">{profile.description}</blockquote>
+                </>
+              ) : (
+                <p className="profile-desc">{profile.description}</p>
+              )}
               <div className="chips">
                 {profile.industry && <Chip>{profile.industry}</Chip>}
                 {profile.headquarters && <Chip>HQ: {profile.headquarters}</Chip>}
