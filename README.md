@@ -15,6 +15,12 @@ The interface shows the essentials first and keeps everything else one click awa
 faced with every feature at once. The layout follows common AI-assistant and CRM patterns on Dribbble:
 a centered start screen, calm list rows, and tabbed company profiles.
 
+**Left sidebar (every page):** New research · Watchlist · views (Worth calling, Nurture, Later) · Insights (Refresh log, Outreach results, How scoring works, Manage list) · Recent companies, with live counts. Each item opens the matching page or dropdown. On phones it becomes a swipeable top bar.
+
+**Dropdowns for secondary information:** the refresh log, outreach results, scoring rules, list management, evidence categories, score criteria ("Why?") and version history. Each header shows a one-line summary, so the collapsed state is still useful. The opening line, the company list and "What to know" are always visible.
+
+**Motion:** buttons, tabs, chips and sidebar items lift and turn blue on hover; cards get a highlighted border; dropdown arrows rotate and contents slide in. All motion is turned off for users who prefer reduced motion.
+
 **1. Start screen (`/`)** has two choices:
 - **Research a new company:** name and website (GitHub handle and job board are under "More
   options"). Research starts immediately, and you land on the company's report, which updates by itself.
@@ -206,8 +212,8 @@ Push to GitHub → Vercel **Add New → Project** → import → add the six env
 ## Managing the watchlist
 
 Start screen → **Research a new company** adds a company and researches it straight away. On the
-watchlist, **More details → Manage list** removes a company (the weekly refresh stops, history is kept)
-or restores it. The same records can be inspected in the Supabase Table Editor.
+watchlist, the **Manage list** dropdown removes a company (the weekly refresh stops, history is kept)
+or restores it. The sidebar link **Manage list** goes straight there. The same records can be inspected in the Supabase Table Editor.
 
 ## Tests
 

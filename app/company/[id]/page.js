@@ -13,7 +13,7 @@ import StatusSelect from "@/app/components/StatusSelect";
 import VersionRestore from "@/app/components/VersionRestore";
 import { RemoveButton, RestoreButton } from "@/app/components/WatchlistButtons";
 import {
-  Avatar, CATEGORY_LABELS, Chip, ConfidenceBadge, EVIDENCE_STATUS_LABELS, formatDate, FreshnessBadge,
+  Accordion, Avatar, CATEGORY_LABELS, Chip, ConfidenceBadge, EVIDENCE_STATUS_LABELS, formatDate, FreshnessBadge,
   ResearchStatus, ScoreRing, SetupNeeded, SOURCE_TYPE_LABELS, TIER_TEXT, timeAgo,
 } from "@/app/components/ui";
 
@@ -59,7 +59,7 @@ async function CompanyReport({ params, searchParams }) {
   await connection();
   if (!isConfigured()) return <SetupNeeded />;
 
-  const [{ id }, { tab = "overview" }] = await Promise.all([params, searchParams]);
+  const [{ id }, { tab = "overview", open = "" }] = await Promise.all([params, searchParams]);
   const c = await getCompany(id);
   if (!c) notFound();
   const i = c.intel;
@@ -132,7 +132,7 @@ async function CompanyReport({ params, searchParams }) {
           <p>{busy ? "Your report will appear here in about a minute." : "No research yet. Click Refresh now to start."}</p>
         </section>
       ) : tab === "evidence" ? (
-        <EvidenceTab ev={ev} gaps={gaps} />
+        <EvidenceTab ev={ev} gaps={gaps} open={open} />
       ) : tab === "score" ? (
         <ScoreTab i={i} history={c.history} />
       ) : tab === "history" ? (
@@ -147,7 +147,7 @@ async function CompanyReport({ params, searchParams }) {
 // ─────────────────────────── Overview: the 10% Nikhil needs before a call ───────────────────────────
 
 function OverviewTab({ c, i, ev, gaps, base }) {
-  const refToId = Object.fromEntries(toBundle(ev).map((e) => [e.ref, e.id]));
+  const refToId = Object.fromEntries(toBundle(ev).map((e) => [e.ref, e]));
   const langs = snapshot(ev, "language").slice(0, 4);
   const infra = snapshot(ev, "infrastructure", techLabel).slice(0, 6);
   const activity = ev
@@ -213,7 +213,7 @@ function OverviewTab({ c, i, ev, gaps, base }) {
       </div>
 
       {gaps.length > 0 && (
-        <Link href={`${base}?tab=evidence#gaps`} className="gap-note">
+        <Link href={`${base}?tab=evidence&open=gaps#gaps`} className="gap-note">
           <span aria-hidden>ⓘ</span> {gaps.length} thing{gaps.length > 1 ? "s" : ""} we couldn’t verify publicly, e.g. {gaps[0].detail.replace(/\.$/, "").toLowerCase()}. <span className="link-arrow">Details →</span>
         </Link>
       )}
@@ -228,7 +228,7 @@ function StackGroup({ title, items, base }) {
       {items.length ? (
         <div className="stack-chips">
           {items.map((g) => (
-            <Link key={g.key} href={`${base}?tab=evidence#ev-${g.best.id}`} className={`stack-chip conf-${g.confidence}`} title={`${g.confidence} confidence · ${g.items.length} source${g.items.length > 1 ? "s" : ""}`}>
+            <Link key={g.key} href={`${base}?tab=evidence&open=${g.best.category}#ev-${g.best.id}`} className={`stack-chip conf-${g.confidence}`} title={`${g.confidence} confidence · ${g.items.length} source${g.items.length > 1 ? "s" : ""}`}>
               <i aria-hidden />{g.name}
             </Link>
           ))}
@@ -241,13 +241,13 @@ function StackGroup({ title, items, base }) {
 /** Turn "(E3, E7)" citations into small links to the evidence rows. */
 function withRefs(text, refToId, base) {
   return text.split(/\b(E\d{1,3})\b/).map((part, k) =>
-    refToId[part] ? <Link key={k} href={`${base}?tab=evidence#ev-${refToId[part]}`} className="ref" title="See the source">{part}</Link> : part
+    refToId[part] ? <Link key={k} href={`${base}?tab=evidence&open=${refToId[part].category}#ev-${refToId[part].id}`} className="ref" title="See the source">{part}</Link> : part
   );
 }
 
 // ─────────────────────────── Evidence ───────────────────────────
 
-function EvidenceTab({ ev, gaps }) {
+function EvidenceTab({ ev, gaps, open }) {
   const byCategory = Object.keys(CATEGORY_LABELS)
     .map((cat) => [cat, ev.filter((e) => e.category === cat).sort((a, b) => RANK[a.confidence] - RANK[b.confidence] || a.source_tier - b.source_tier)])
     .filter(([, list]) => list.length);
@@ -262,9 +262,14 @@ function EvidenceTab({ ev, gaps }) {
         </p>
       </section>
 
-      {byCategory.map(([cat, list]) => (
-        <section key={cat} className="card" id={`ev-${cat}`}>
-          <h2>{CATEGORY_LABELS[cat]} <span className="muted small">{list.length}</span></h2>
+      {byCategory.map(([cat, list], idx) => (
+        <Accordion
+          key={cat}
+          id={`ev-${cat}`}
+          open={open ? open === cat : idx === 0}
+          title={CATEGORY_LABELS[cat]}
+          meta={`${list.length} finding${list.length > 1 ? "s" : ""} · ${list.filter((e) => e.confidence === "high").length} high confidence`}
+        >
           <ul className="ev-list">
             {list.map((e) => (
               <li key={e.id} id={`ev-${e.id}`} className="ev-item">
@@ -284,16 +289,15 @@ function EvidenceTab({ ev, gaps }) {
               </li>
             ))}
           </ul>
-        </section>
+        </Accordion>
       ))}
 
-      <section className="card" id="gaps">
-        <h2>What we couldn’t verify</h2>
+      <Accordion id="gaps" open={open === "gaps"} tone="warn" title="What we couldn’t verify" meta={gaps.length ? `${gaps.length} gap${gaps.length > 1 ? "s" : ""}: ${gaps.map((g) => g.area).join(", ")}` : "No gaps this week"}>
         {gaps.length ? (
           <ul className="gaps">{gaps.map((g, k) => <li key={k}><b>{g.area}:</b> {g.detail}</li>)}</ul>
         ) : <p className="muted small">Every source type returned evidence this week.</p>}
         <p className="muted small">A gap means it isn’t visible publicly, not that the company doesn’t use it. Professional-network pages aren’t scraped.</p>
-      </section>
+      </Accordion>
     </div>
   );
 }
@@ -313,9 +317,14 @@ function ScoreTab({ i, history }) {
       <ul className="breakdown two-col">
         {(i.score_breakdown ?? []).map((b) => (
           <li key={b.key}>
-            <div className="breakdown-row"><span>{b.label}</span><span className="mono">{b.points}<span className="muted">/{b.max}</span></span></div>
-            <div className="meter"><span className={`meter-fill fill-${i.fit_tier}`} style={{ width: `${(b.points / b.max) * 100}%` }} /></div>
-            <div className="muted small">{b.evidence.join(" · ")}</div>
+            <details className="mini-acc">
+              <summary>
+                <div className="breakdown-row"><span>{b.label}</span><span className="mono">{b.points}<span className="muted">/{b.max}</span></span></div>
+                <div className="meter"><span className={`meter-fill fill-${i.fit_tier}`} style={{ width: `${(b.points / b.max) * 100}%` }} /></div>
+                <span className="mini-acc-hint small">Why?</span>
+              </summary>
+              <ul className="why">{b.evidence.map((e, k) => <li key={k} className="small">{e}</li>)}</ul>
+            </details>
           </li>
         ))}
       </ul>
@@ -340,8 +349,7 @@ function HistoryTab({ c, i }) {
           </div>
         </section>
       )}
-      <section className="card">
-        <h2>Versions of the summary and opening line</h2>
+      <Accordion title="Versions of the summary and opening line" meta={`${c.versions.length} saved · latest ${timeAgo(c.versions[0]?.created_at)}`} open>
         <p className="muted small">Every weekly report, rewrite and edit is kept. Restoring a version never changes the evidence.</p>
         <ul className="versions">
           {c.versions.map((v) => (
@@ -356,7 +364,7 @@ function HistoryTab({ c, i }) {
             </li>
           ))}
         </ul>
-      </section>
+      </Accordion>
       <section className="card">
         <h2>Remove from watchlist</h2>
         <p className="muted small">Stops the weekly refresh. The research history is kept and you can restore it any time.</p>

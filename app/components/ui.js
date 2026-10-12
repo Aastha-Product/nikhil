@@ -218,3 +218,22 @@ export function SetupNeeded() {
     </section>
   );
 }
+
+/**
+ * Dropdown section. The header always shows a one-line summary (`meta`) so collapsed sections
+ * still say something useful; the details open on click.
+ */
+export function Accordion({ id, title, meta, open = false, tone, children }) {
+  return (
+    <details className={`acc ${tone ? `acc-${tone}` : ""}`} id={id} open={open || undefined}>
+      <summary>
+        <span className="acc-title">{title}</span>
+        {meta && <span className="acc-meta">{meta}</span>}
+        <span className="acc-chev" aria-hidden>
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </span>
+      </summary>
+      <div className="acc-body">{children}</div>
+    </details>
+  );
+}

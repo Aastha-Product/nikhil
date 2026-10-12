@@ -1,5 +1,6 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import Sidebar from "./components/Sidebar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,25 +22,32 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
-        <header className="topbar">
-          <div className="topbar-inner">
-            <Link href="/" className="brand">
-              <span className="brand-mark" aria-hidden>
-                <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3L18.8 8 12 11.7 5.2 8 12 4.3ZM5 9.7l6 3.3v6.7l-6-3.3V9.7Zm8 10V13l6-3.3v6.7l-6 3.3Z" fill="currentColor" /></svg>
-              </span>
-              Tech Stack Scout
-            </Link>
-            <nav className="nav">
-              <Link href="/">New research</Link>
-              <Link href="/watchlist">Watchlist</Link>
-            </nav>
+        <div className="shell">
+          <Suspense fallback={<SidebarPlaceholder />}>
+            <Sidebar />
+          </Suspense>
+          <div className="shell-main">
+            <main className="container">{children}</main>
+            <footer className="footer">
+              Public sources only: GitHub, official job boards, and engineering articles found with Google Search. Scores are computed in code; Gemini Flash only writes the text.
+            </footer>
           </div>
-        </header>
-        <main className="container">{children}</main>
-        <footer className="footer">
-          Public sources only: GitHub, official job boards, and engineering articles found with Google Search. Scores are computed in code; Gemini Flash only writes the text.
-        </footer>
+        </div>
       </body>
     </html>
+  );
+}
+
+function SidebarPlaceholder() {
+  return (
+    <aside className="sidebar" aria-busy>
+      <div className="brand">
+        <span className="brand-mark" aria-hidden />
+        <span>Tech Stack Scout<small>for FlowForge sales</small></span>
+      </div>
+      <div className="side-nav">
+        {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="side-link skeleton" style={{ minHeight: 34 }} />)}
+      </div>
+    </aside>
   );
 }
