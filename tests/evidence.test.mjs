@@ -135,3 +135,17 @@ test("no-score verdict: outside target customers only for non-software companies
   assert.equal(noScoreVerdict({ company_type: "unknown" }).code, "unknown");
   assert.equal(noScoreVerdict(null).code, "unknown");
 });
+
+test("job posts on third-party job sites are never treated as official", () => {
+  const web = { findings: [
+    { title: "SRE Engineer – Azure", date: "2026-09", type: "job_posting", domain: "dice.com", url: "https://www.dice.com/job/1", first_party: true, insight: "Role requires AKS.", technologies: ["Azure"], tech_keys: ["azure"] },
+    { title: "DevOps Engineer", date: "2026-09", type: "job_posting", domain: "careers.acme.dev", url: "https://careers.acme.dev/job/2", first_party: true, insight: "Role requires Kubernetes.", technologies: ["Kubernetes"], tech_keys: ["kubernetes"] },
+  ] };
+  const ev = buildEvidence({ name: "Acme", website: "https://acme.dev" }, { github: null, jobs: null, web }, NOW);
+  const dice = ev.find((e) => e.source_url.includes("dice.com"));
+  const own = ev.find((e) => e.source_url.includes("careers.acme.dev"));
+  assert.equal(dice.source_type, "third_party");
+  assert.equal(dice.confidence, "low");
+  assert.equal(own.source_type, "job_posting");
+  assert.equal(own.source_tier, 1);
+});

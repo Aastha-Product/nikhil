@@ -243,7 +243,7 @@ function NoScoreOverview({ c, i, gaps, base }) {
   );
 }
 
-const TYPE_LABEL = { software: "Software company", tech_enabled: "Tech-enabled company", non_software: "Non-software company" };
+const TYPE_LABEL = { software: "Software company", it_services: "IT services company", tech_enabled: "Tech-enabled company", non_software: "Non-software company" };
 
 function VerdictPill({ verdict }) {
   return <span className={`verdict-pill verdict-${verdict.code}`}>{verdict.label}</span>;

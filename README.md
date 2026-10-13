@@ -167,7 +167,8 @@ fit with the product, not need or buying intent.
 | Too little evidence | No padded summary; "not enough evidence" for the opening line |
 | Weekly job doesn't finish | Logged as Partial; deferred companies are picked up the next day |
 | Gemini quota used up, model retired, or Google key invalid | Retries, then a backup Flash model on the same key, then Gemini Flash via OpenRouter (Google servers only). The model that wrote each report is recorded |
-| Google Search quota used up | Blogs/talks skipped with a clear message; company profile falls back to the company website, then Wikidata; last good evidence kept |
+| Google Search quota used up | Web research switches to Gemini Flash via OpenRouter with its web-search plugin (Exa engine, about $0.007 per search); if that is unavailable, blogs/talks are skipped with a clear message and the last good evidence is kept. The company profile then falls back to the company website, then Wikidata |
+| Company has no public GitHub or uses its own careers portal (common for large enterprises) | Web research also looks for engineering roles on the official careers site; job posts on third-party job sites are rated low and never treated as official |
 | Supabase down | Friendly "temporarily unavailable" page with Try again (no data lost); sidebar keeps working without counts |
 | Two refreshes of the same company at once | The second one skips it (database claim; a claim older than 10 minutes counts as stuck) |
 
