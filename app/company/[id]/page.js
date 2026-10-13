@@ -9,6 +9,7 @@ import { noScoreVerdict, toBundle } from "@/lib/evidence";
 import AutoRefresh from "@/app/components/AutoRefresh";
 import EditableOutput from "@/app/components/EditableOutput";
 import RefreshButton from "@/app/components/RefreshButton";
+import SizeCard, { SizePill } from "@/app/components/SizeCard";
 import StatusSelect from "@/app/components/StatusSelect";
 import VersionRestore from "@/app/components/VersionRestore";
 import { RemoveButton, RestoreButton } from "@/app/components/WatchlistButtons";
@@ -88,6 +89,7 @@ async function CompanyReport({ params, searchParams }) {
               {c.website && <a href={c.website} target="_blank" rel="noreferrer">{c.website.replace(/^https?:\/\//, "")}</a>}
               {c.github_org && <a href={`https://github.com/${c.github_org}`} target="_blank" rel="noreferrer">GitHub</a>}
               <ResearchStatus status={c.research_status} />
+              <SizePill size={i?.size} quiet />
               <span className="muted">updated {timeAgo(i?.last_refreshed)}</span>
             </div>
           </div>
@@ -220,6 +222,8 @@ function NoScoreOverview({ c, i, gaps, base }) {
         </aside>
       </div>
 
+      <SizeCard size={i.size} checkedAt={i.web_mentions?.company_size?.checked_at} />
+
       <section className="card">
         <h2>What to do next</h2>
         <ul className="next-steps">
@@ -316,6 +320,8 @@ function OverviewTab({ c, i, ev, gaps, base }) {
           <Link href={`${base}?tab=evidence`} className="small link-arrow">See all {ev.length} findings and sources →</Link>
         </aside>
       </div>
+
+      <SizeCard size={i.size} checkedAt={i.web_mentions?.company_size?.checked_at} />
 
       {gaps.length > 0 && (
         <Link href={`${base}?tab=evidence&open=gaps#gaps`} className="gap-note">

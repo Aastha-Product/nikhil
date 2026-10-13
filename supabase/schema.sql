@@ -26,7 +26,13 @@ create table if not exists public.product_profile (
   neutral_languages     text[] not null default '{C#,Ruby,Scala}',
   target_clouds         text[] not null default '{aws,gcp}',
   target_runtime        text[] not null default '{kubernetes,docker,helm}',
-  intent_role_keywords  text[] not null default '{platform engineer,platform infrastructure,developer experience,developer productivity,devex,developer tools,sre,site reliability,infrastructure,devops,build engineer,build infrastructure,release engineer,ci/cd}'
+  intent_role_keywords  text[] not null default '{platform engineer,platform infrastructure,developer experience,developer productivity,devex,developer tools,sre,site reliability,infrastructure,devops,build engineer,build infrastructure,release engineer,ci/cd}',
+  -- Company size check (our assumption; never changes the fit score). See migrations/003.
+  min_engineers         int  not null default 50,
+  max_engineers         int  not null default 2000,
+  min_employees         int  not null default 200,
+  min_revenue_inr_cr    int  not null default 50,
+  min_funding_stage     text not null default 'Series B'
 );
 
 insert into public.product_profile (id) values (1) on conflict (id) do nothing;

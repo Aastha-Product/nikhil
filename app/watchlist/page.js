@@ -4,6 +4,8 @@ import { connection } from "next/server";
 import { computeMetrics, getRecentRuns, getWatchlist } from "@/lib/data";
 import { isConfigured } from "@/lib/supabaseAdmin";
 import AutoRefresh from "../components/AutoRefresh";
+import { SizePill } from "../components/SizeCard";
+import { SIZE_DEFAULTS } from "@/lib/size";
 import { RemoveButton, RestoreButton } from "../components/WatchlistButtons";
 import { Accordion, Avatar, Chip, NoScore, ResearchStatus, SetupNeeded, STATUS_LABELS, TierPill, timeAgo } from "../components/ui";
 
@@ -46,6 +48,8 @@ async function Watchlist({ searchParams }) {
   const count = { "": m.total, A: m.tiers.A, B: m.tiers.B, C: m.tiers.C };
   const lastRun = runs[0];
   const contacted = ["A", "B", "C"].reduce((a, t) => a + m.funnel[t].contacted, 0);
+  const st = companies.find((c) => c.intel?.size)?.intel.size.thresholds ?? SIZE_DEFAULTS;
+  const n = (v) => Number(v).toLocaleString("en-IN");
 
   return (
     <>
@@ -93,7 +97,7 @@ async function Watchlist({ searchParams }) {
                 <Link href={`/company/${c.id}`} className="row-link" aria-label={`Open ${c.name}`} />
                 <Avatar org={c.github_org} name={c.name} size={40} />
                 <div className="row-main">
-                  <div className="row-name">{c.name}</div>
+                  <div className="row-name">{c.name} <SizePill size={i?.size} quiet /></div>
                   <div className="muted small">
                     {c.website ? c.website.replace(/^https?:\/\//, "") : c.github_org ? `github.com/${c.github_org}` : "—"}
                   </div>
@@ -181,6 +185,10 @@ async function Watchlist({ searchParams }) {
             ))}
           </ul>
           <p className="small"><TierPill tier="A" /> 75+ &nbsp; <TierPill tier="B" /> 50–74 &nbsp; <TierPill tier="C" /> under 50</p>
+          <p className="muted small">
+            <b>Company size is checked separately</b> and never changes the score: {n(st.min_engineers)}–{n(st.max_engineers)} engineers, {n(st.min_employees)}+ employees,
+            and ₹{n(st.min_revenue_inr_cr)} Cr+ revenue or {st.min_funding_stage}+ funding. These limits are our assumption for FlowForge and can be edited in Supabase (product_profile).
+          </p>
         </Accordion>
 
         <Accordion id="manage" open={open === "manage"} title="Manage list" meta={`${companies.length} active${removed.length ? ` · ${removed.length} removed` : ""}`}>

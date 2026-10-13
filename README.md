@@ -155,6 +155,22 @@ Traceability is the same.
 **A ≥ 75** worth calling this week · **B 50–74** nurture · **C < 50** deprioritize. The score describes
 fit with the product, not need or buying intent.
 
+## Company size check (separate from the score)
+
+The fit score says whether the stack matches FlowForge; the size check says whether the company is the size
+FlowForge sells to. It never changes the score. The limits are **our assumption** (doc 10's ICP: 50–2,000
+engineers) and live in `product_profile`, so they can be edited in the Supabase Table Editor without code.
+
+| Check | Default limit | Where the figure comes from |
+|---|---|---|
+| Engineering team (main) | 50–2,000 engineers | Published figure; otherwise **estimated** from staff (software ~35%, IT services ~60%, tech-enabled ~15%; no estimate for non-software) and labelled as an estimate |
+| Company size | 200+ employees | Wikidata (P1128) or a cited web search |
+| Revenue or funding | ₹50 Cr+ revenue **or** Series B+ (listed/acquired counts) | Wikidata (P2139) or a cited web search; other currencies converted at approximate rates |
+
+Labels: *In FlowForge's size range*, *Too small for FlowForge*, *Enterprise: long sales cycle*, *Outside size range*,
+*Size partly verified*, *Size unknown*. Every figure links to its source; a figure whose source can't be matched is
+dropped, never guessed. The lookup is capped at 45 s so it can't hold up research, and is reused for 30 days.
+
 ## Failure handling (§10, §13)
 
 | Situation | Behavior |
@@ -180,7 +196,7 @@ fit with the product, not need or buying intent.
 
 | Service | What to do | Env var |
 |---|---|---|
-| **Supabase** | New project → **SQL Editor** → run `supabase/schema.sql`, then `supabase/migrations/002_evidence_and_runs.sql` → **Project Settings → API Keys**: Project URL + **secret** key | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
+| **Supabase** | New project → **SQL Editor** → run `supabase/schema.sql`, then `supabase/migrations/002_evidence_and_runs.sql` and `003_size_thresholds.sql` → **Project Settings → API Keys**: Project URL + **secret** key | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | **Google AI Studio** | **Get API key**; check which Flash models your key can call | `GEMINI_API_KEY`, `GEMINI_MODEL` |
 | **GitHub** | Fine-grained token, public repositories, read-only | `GITHUB_TOKEN` |
 | **Vercel** | Sign up with GitHub | — |
