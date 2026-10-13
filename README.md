@@ -166,6 +166,10 @@ fit with the product, not need or buying intent.
 | AI names an unsupported tool / no citation | Regenerated once with a correction; still failing → flagged in the report |
 | Too little evidence | No padded summary; "not enough evidence" for the opening line |
 | Weekly job doesn't finish | Logged as Partial; deferred companies are picked up the next day |
+| Gemini quota used up, model retired, or Google key invalid | Retries, then a backup Flash model on the same key, then Gemini Flash via OpenRouter (Google servers only). The model that wrote each report is recorded |
+| Google Search quota used up | Blogs/talks skipped with a clear message; company profile falls back to the company website, then Wikidata; last good evidence kept |
+| Supabase down | Friendly "temporarily unavailable" page with Try again (no data lost); sidebar keeps working without counts |
+| Two refreshes of the same company at once | The second one skips it (database claim; a claim older than 10 minutes counts as stuck) |
 
 ---
 

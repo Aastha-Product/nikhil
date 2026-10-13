@@ -9,7 +9,13 @@ import SidebarNav from "./SidebarNav";
 export default async function Sidebar() {
   await connection();
   if (!isConfigured()) return <SidebarNav counts={null} recent={[]} />;
-  const { active } = await getWatchlist();
+  // If the database is down, keep the navigation working (without counts) instead of breaking every page.
+  let active;
+  try {
+    ({ active } = await getWatchlist());
+  } catch {
+    return <SidebarNav counts={null} recent={[]} />;
+  }
   const m = computeMetrics(active);
   const recent = [...active]
     .filter((c) => c.intel?.last_refreshed)

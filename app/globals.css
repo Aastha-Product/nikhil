@@ -707,3 +707,9 @@ a.link-arrow:hover { transform: translateX(3px); }
   .sidebar { scrollbar-width: none; -ms-overflow-style: none; }
   .sidebar::-webkit-scrollbar { display: none; }
 }
+
+/* Error page (database or service temporarily unavailable) */
+.error-card { max-width: 620px; margin: 40px auto; text-align: center; padding: 36px 32px; }
+.error-card h1 { font-size: 1.5rem; margin: 14px 0 10px; }
+.error-icon { display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--amber-soft); color: var(--amber); font-size: 1.6rem; font-weight: 800; }
+.error-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px 0 8px; }

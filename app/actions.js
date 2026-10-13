@@ -107,6 +107,7 @@ export async function refreshNow(companyId) {
   refresh();
   const r = summary.results[0];
   if (!r) return { ok: false, error: "Nothing was refreshed." };
+  if (r.skipped) return { ok: false, error: "Research is already running for this company. This page will update when it finishes." };
   return r.ok ? { ok: true, partial: r.partial } : { ok: false, error: r.error };
 }
 
@@ -147,7 +148,7 @@ async function saveOutput(companyId, type, content, origin, extra = {}) {
     content,
     origin,
     feedback: extra.feedback ?? null,
-    model: origin.startsWith("ai") ? MODEL() : null,
+    model: origin.startsWith("ai") ? extra.model ?? MODEL() : null,
   });
 }
 
@@ -181,7 +182,7 @@ export async function regenerateOutput(companyId, type, feedback) {
     return { ok: false, error: `The new version mentioned ${unsupported.join(", ")}, which isn't in the evidence, so it was not saved. Try again or refresh the research.` };
   }
 
-  const extra = { feedback: fb || null, intel: {} };
+  const extra = { feedback: fb || null, intel: {}, model: out.model };
   if (type === "first_line") {
     const cited = citedEvidence(out.evidence_ids, bundle).filter((e) => e.confidence !== "low");
     extra.intel = {
